@@ -10,6 +10,8 @@ import 'package:internhub/Home/Search.dart';
 import 'package:internhub/Settings/SettingsPage.dart';
 import 'package:internhub/LogIn_ And_Register/Log_In.dart'; // Import the LoginPage
 
+
+
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
