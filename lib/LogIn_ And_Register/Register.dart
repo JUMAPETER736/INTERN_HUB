@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -12,44 +13,56 @@ class _RegisterState extends State<Register> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _ageController = TextEditingController();
-  final _nationalityController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   String? _selectedGender;
 
+  Future<void> _saveUserDetails(User user) async {
+    await FirebaseFirestore.instance.collection('Intern_Personal_Details').doc(user.email).set({
+      'name': _nameController.text.trim(),
+      'email': user.email,
+      'age': _ageController.text.trim(),
+      'gender': _selectedGender ?? 'Unknown',
+      'createdAt': Timestamp.now(),
+      'profilePictureUrl': '',
+    });
+  }
+
+  void _showSuccessToast([String message = "Registered Successfully"]) {
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_SHORT,
+      textColor: Colors.blue,
+      fontSize: 16.0,
+    );
+  }
+
   Future<void> _register() async {
-    if (_formKey.currentState!.validate()) {
+    if (_formKey.currentState?.validate() ?? false) {
       try {
-        // Access Firestore instance
-        final firestore = FirebaseFirestore.instance;
-
-        // Save data to Firestore
-        await firestore.collection('Intern_Details').doc(_emailController.text).set({
-          'name': _nameController.text,
-          'age': _ageController.text,
-          'gender': _selectedGender,
-          'nationality': _nationalityController.text,
-          'email': _emailController.text,
-          'password': _passwordController.text,
-        });
-
-        // Show success toast message
-        Fluttertoast.showToast(
-          msg: "Successful registration",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
-          backgroundColor: Colors.green,
-          textColor: Colors.white,
-          fontSize: 16.0
+        // Create user with email and password
+        UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
         );
 
-        // Navigate to Log In screen
-        Navigator.pushReplacementNamed(context, '/LogIn');
-      } catch (e) {
-        // Handle error
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
+        // Save user details to Firestore
+        await _saveUserDetails(userCredential.user!);
+
+        // Show success message
+        _showSuccessToast();
+
+        // Navigate to the next screen (e.g., Home screen)
+        Navigator.pushReplacementNamed(context, '/Home');
+      } on FirebaseAuthException catch (e) {
+        // Show error message
+        String message = e.message ?? "Registration failed";
+        Fluttertoast.showToast(
+          msg: message,
+          toastLength: Toast.LENGTH_SHORT,
+          textColor: Colors.red,
+          fontSize: 16.0,
         );
       }
     }
@@ -68,7 +81,7 @@ class _RegisterState extends State<Register> {
               children: [
                 SizedBox(height: 40),
                 Text(
-                  'Sign Up',
+                  'Register',
                   style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 40),
@@ -81,7 +94,7 @@ class _RegisterState extends State<Register> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your name';
+                      return 'Please enter your Full Name';
                     }
                     return null;
                   },
@@ -97,7 +110,7 @@ class _RegisterState extends State<Register> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your age';
+                      return 'Please enter your Age';
                     }
                     return null;
                   },
@@ -112,9 +125,9 @@ class _RegisterState extends State<Register> {
                   value: _selectedGender,
                   items: ['Male', 'Female', 'Other']
                       .map((gender) => DropdownMenuItem(
-                            value: gender,
-                            child: Text(gender),
-                          ))
+                    value: gender,
+                    child: Text(gender),
+                  ))
                       .toList(),
                   onChanged: (value) {
                     setState(() {
@@ -123,22 +136,7 @@ class _RegisterState extends State<Register> {
                   },
                   validator: (value) {
                     if (value == null) {
-                      return 'Please select your gender';
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(height: 20),
-                // Nationality Field
-                TextFormField(
-                  controller: _nationalityController,
-                  decoration: InputDecoration(
-                    labelText: 'Nationality',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your nationality';
+                      return 'Please select your Gender';
                     }
                     return null;
                   },
@@ -153,11 +151,12 @@ class _RegisterState extends State<Register> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
+                      return 'Please enter your Email';
                     }
-                    // Basic email validation
-                    if (!RegExp(r'\S+@\S+\.\S+').hasMatch(value)) {
-                      return 'Please enter a valid email';
+                    if (!RegExp(
+                        r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
+                        .hasMatch(value)) {
+                      return 'Please enter a valid Email';
                     }
                     return null;
                   },
@@ -174,7 +173,7 @@ class _RegisterState extends State<Register> {
                   obscureText: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
+                      return 'Please enter your Password';
                     }
                     return null;
                   },
@@ -191,7 +190,7 @@ class _RegisterState extends State<Register> {
                   obscureText: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please confirm your password';
+                      return 'Please confirm your Password';
                     }
                     if (value != _passwordController.text) {
                       return 'Passwords do not match';
@@ -205,7 +204,7 @@ class _RegisterState extends State<Register> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: _register,
-                    child: Text('Sign Up'),
+                    child: Text('Register'),
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.all(16),
                     ),
@@ -217,44 +216,12 @@ class _RegisterState extends State<Register> {
                   onTap: () {
                     Navigator.pushReplacementNamed(context, '/LogIn');
                   },
-                  child: Text('Already have an account? Log In'),
+                  child: Text('Already have an Account? Log In'),
                 ),
               ],
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'InternHub',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      initialRoute: '/Register',
-      routes: {
-        '/Register': (context) => Register(),
-        '/LogIn': (context) => LogIn(), 
-      },
-    );
-  }
-}
-
-class LogIn extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Text('Log In Page'),
       ),
     );
   }
