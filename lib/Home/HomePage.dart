@@ -24,7 +24,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.lightBlue[50], // Updated background color
+      backgroundColor: Colors.blueGrey, // Updated background color
       appBar: AppBar(
         title: Text(
           'InternHub',

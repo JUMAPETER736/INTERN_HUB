@@ -15,7 +15,6 @@ class _Log_InState extends State<Log_In> {
   bool _obscurePassword = true; // To toggle password visibility
   String? _errorMessage; // To hold error messages
 
-  // Function to log in the user
   Future<void> _logIn() async {
     setState(() {
       _errorMessage = null; // Reset the error message
@@ -35,12 +34,74 @@ class _Log_InState extends State<Log_In> {
           MaterialPageRoute(builder: (context) => HomePage()),
         );
       } on FirebaseAuthException catch (e) {
-        String message = e.message ?? "Login failed";
-        setState(() {
-          _errorMessage = message; // Set the error message
-        });
+        // Check the error code and set appropriate error message
+        if (e.code == 'user-not-found') {
+          setState(() {
+            _errorMessage = "Incorrect Password"; // Treat unregistered email as incorrect password
+          });
+        } else if (e.code == 'wrong-password') {
+          setState(() {
+            _errorMessage = "Incorrect Password"; // Wrong password
+          });
+        } else {
+          setState(() {
+            _errorMessage = "Email or Password Incorrect"; // Generic message for other errors
+          });
+        }
       }
     }
+  }
+
+  // Method to handle password reset
+  Future<void> _resetPassword(String email) async {
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      Fluttertoast.showToast(
+        msg: "Password reset email sent!",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+      );
+    } catch (e) {
+      Fluttertoast.showToast(
+        msg: "Error sending password reset email.",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+      );
+    }
+  }
+
+  // Method to show forgot password dialog
+  void _showForgotPasswordDialog() {
+    String email = "";
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Forgot Password"),
+          content: TextField(
+            decoration: InputDecoration(hintText: "Enter your email"),
+            onChanged: (value) {
+              email = value;
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                _resetPassword(email);
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text("Send"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text("Cancel"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -156,9 +217,7 @@ class _Log_InState extends State<Log_In> {
                         SizedBox(height: 10),
                         // Forgot Password
                         TextButton(
-                          onPressed: () {
-                            // Handle forgot password
-                          },
+                          onPressed: _showForgotPasswordDialog,
                           child: Text('Forgot your Password?', style: TextStyle(color: Colors.blue)),
                         ),
                         SizedBox(height: 10),

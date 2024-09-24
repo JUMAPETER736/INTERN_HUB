@@ -6,7 +6,7 @@ class Help extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Help & Support'),
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: Colors.blueAccent, // Changed to teal
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -23,7 +23,7 @@ class Help extends StatelessWidget {
                 // Action for feedback or support request
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blueAccent,
+                backgroundColor: Colors.teal, // Changed to teal
                 padding: EdgeInsets.symmetric(vertical: 15.0),
                 textStyle: TextStyle(fontSize: 18),
               ),
@@ -53,12 +53,13 @@ class Help extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
+                  color: Colors.teal, // Changed to teal
                 ),
               ),
               SizedBox(height: 8),
               Text(
                 description,
-                style: TextStyle(fontSize: 16),
+                style: TextStyle(fontSize: 16, color: Colors.grey[800]), // Softer text color
               ),
             ],
           ),
