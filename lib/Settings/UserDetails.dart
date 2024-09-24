@@ -83,6 +83,7 @@ class _UserDetailsState extends State<UserDetails> {
         child: ListView(
           children: [
             _buildProfileField('Name', userDetails!['name']),
+            _buildProfileField('Email', userDetails!['email']),
             _buildEditableField('Phone', _phoneController),
             _buildEditableField('University', _universityController),
             _buildEditableField('Program', _programController),

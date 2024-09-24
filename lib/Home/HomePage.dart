@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:internhub/Settings/UserDetials.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:internhub/Settings/UserDetails.dart';
 import 'package:internhub/Home/Applications.dart';
 import 'package:internhub/Home/EmployersDashBoard.dart';
 import 'package:internhub/Home/Help.dart';
@@ -7,6 +8,7 @@ import 'package:internhub/Home/InstitutionDashBoard.dart';
 import 'package:internhub/Home/Resources.dart';
 import 'package:internhub/Home/Search.dart';
 import 'package:internhub/Settings/SettingsPage.dart';
+import 'package:internhub/LogIn_ And_Register/Log_In.dart'; // Import the LoginPage
 
 class HomePage extends StatefulWidget {
   @override
@@ -14,6 +16,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   int _selectedIndex = 1; // To track the selected item in bottom navigation
 
   @override
@@ -40,10 +43,7 @@ class _HomePageState extends State<HomePage> {
           ),
           IconButton(
             icon: Icon(Icons.logout, color: Colors.white, size: 28),
-            onPressed: () {
-              // Handle logout functionality
-              _logout();
-            },
+            onPressed: _logout, // Call the logout function
           ),
         ],
       ),
@@ -188,11 +188,17 @@ class _HomePageState extends State<HomePage> {
   }
 
   // Method to handle logout functionality
-  void _logout() {
-    // Perform the logout process
-    // For now, just show a message
+  void _logout() async {
+    await _auth.signOut(); // Sign out from Firebase
+    // Navigate to login page after logout
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => Log_In()),
+          (Route<dynamic> route) => false, // Removes all previous routes
+    );
+
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Logged out successfully!')),
+      SnackBar(content: Text('Logged out Successfully!')),
     );
   }
 
