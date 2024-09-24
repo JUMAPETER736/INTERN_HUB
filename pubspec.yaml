@@ -27,7 +27,7 @@ dependencies:
   shared_preferences: ^2.3.2
   firebase_database: ^11.1.2
   flutter_local_notifications: ^17.2.2
- 
+  url_launcher: ^6.0.20
 
   # Dependencies for forms, navigation, and UI components
   flutter_localizations: # For localization if needed
