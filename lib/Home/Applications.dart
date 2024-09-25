@@ -14,8 +14,12 @@ class Application {
   });
 }
 
-class Applications extends StatelessWidget {
-  // Sample list of applications
+class Applications extends StatefulWidget {
+  @override
+  _ApplicationsState createState() => _ApplicationsState();
+}
+
+class _ApplicationsState extends State<Applications> {
   final List<Application> applications = [
     Application(
       internshipTitle: 'Software Engineering Intern',
@@ -37,38 +41,62 @@ class Applications extends StatelessWidget {
     ),
   ];
 
+  List<Application> filteredApplications = [];
+
+  @override
+  void initState() {
+    super.initState();
+    filteredApplications = applications;
+  }
+
+  void _filterApplications(String query) {
+    final results = applications.where((application) {
+      final internshipTitleLower = application.internshipTitle.toLowerCase();
+      final companyLower = application.company.toLowerCase();
+      final searchLower = query.toLowerCase();
+
+      return internshipTitleLower.contains(searchLower) ||
+          companyLower.contains(searchLower);
+    }).toList();
+
+    setState(() {
+      filteredApplications = results;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('My Applications'),
-        backgroundColor: Colors.teal,
+        backgroundColor: Colors.teal[700], // Darker teal for a modern look
       ),
       body: Container(
-        color: Colors.grey[100], // Subtle background color
+        color: Colors.grey[100],
         child: Column(
           children: [
-            // Search bar
             Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               child: TextField(
+                onChanged: (query) => _filterApplications(query),
                 decoration: InputDecoration(
                   labelText: 'Search Applications',
-                  prefixIcon: Icon(Icons.search),
+                  prefixIcon: Icon(Icons.search, color: Colors.teal[700]),
+                  filled: true,
+                  fillColor: Colors.white,
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(
-                      color: Colors.teal,
-                    ),
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
                   ),
+                  contentPadding: EdgeInsets.symmetric(vertical: 15),
                 ),
               ),
             ),
             Expanded(
               child: ListView.builder(
-                itemCount: applications.length,
+                itemCount: filteredApplications.length,
                 itemBuilder: (context, index) {
-                  final application = applications[index];
+                  final application = filteredApplications[index];
                   return _buildApplicationCard(application);
                 },
               ),
@@ -81,37 +109,37 @@ class Applications extends StatelessWidget {
 
   Widget _buildApplicationCard(Application application) {
     return Card(
-      elevation: 5, // Shadow effect
-      margin: EdgeInsets.all(10.0),
+      elevation: 6,
+      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15), // Rounded corners
+        borderRadius: BorderRadius.circular(15),
       ),
       child: ListTile(
-        contentPadding: EdgeInsets.all(15), // Padding inside the card
+        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         title: Text(
           application.internshipTitle,
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 18,
-            color: Colors.teal,
+            color: Colors.teal[700],
           ),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 5), // Space between title and subtitle
+            SizedBox(height: 5),
             Text(
               'Company: ${application.company}',
-              style: TextStyle(fontSize: 16),
+              style: TextStyle(fontSize: 16, color: Colors.grey[800]),
             ),
-            SizedBox(height: 5),
+            SizedBox(height: 10),
             Row(
               children: [
                 Icon(
                   application.status == 'Applied'
-                      ? Icons.access_time
+                      ? Icons.access_time_rounded
                       : application.status == 'Interview Scheduled'
-                      ? Icons.check_circle
+                      ? Icons.check_circle_outline
                       : Icons.cancel,
                   color: application.status == 'Applied'
                       ? Colors.orange
@@ -119,25 +147,97 @@ class Applications extends StatelessWidget {
                       ? Colors.green
                       : Colors.red,
                 ),
-                SizedBox(width: 5), // Space between icon and text
+                SizedBox(width: 8),
                 Text(
                   'Status: ${application.status}',
-                  style: TextStyle(fontSize: 16),
+                  style: TextStyle(fontSize: 16, color: Colors.grey[800]),
                 ),
               ],
             ),
             SizedBox(height: 5),
             Text(
               'Submitted on: ${application.submissionDate}',
-              style: TextStyle(fontSize: 14, color: Colors.grey),
+              style: TextStyle(fontSize: 14, color: Colors.grey[500]),
             ),
           ],
         ),
-        trailing: IconButton(
-          icon: Icon(Icons.arrow_forward),
-          onPressed: () {
-            // Navigate to application details or perform an action
-          },
+        trailing: Icon(Icons.arrow_forward_ios, color: Colors.teal[700]),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ApplicationDetailPage(application: application),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class ApplicationDetailPage extends StatelessWidget {
+  final Application application;
+
+  ApplicationDetailPage({required this.application});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(application.internshipTitle),
+        backgroundColor: Colors.teal[700],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Company: ${application.company}',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.grey[800]),
+            ),
+            SizedBox(height: 20),
+            Row(
+              children: [
+                Icon(
+                  application.status == 'Applied'
+                      ? Icons.access_time_rounded
+                      : application.status == 'Interview Scheduled'
+                      ? Icons.check_circle_outline
+                      : Icons.cancel,
+                  color: application.status == 'Applied'
+                      ? Colors.orange
+                      : application.status == 'Interview Scheduled'
+                      ? Colors.green
+                      : Colors.red,
+                ),
+                SizedBox(width: 8),
+                Text(
+                  'Status: ${application.status}',
+                  style: TextStyle(fontSize: 20, color: Colors.grey[700]),
+                ),
+              ],
+            ),
+            SizedBox(height: 20),
+            Text(
+              'Submitted on: ${application.submissionDate}',
+              style: TextStyle(fontSize: 18, color: Colors.grey[500]),
+            ),
+            SizedBox(height: 30),
+            ElevatedButton(
+              onPressed: () {
+                // Action for button (e.g., withdraw application, etc.)
+              },
+              child: Text('Take Action'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.teal[700],
+                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
