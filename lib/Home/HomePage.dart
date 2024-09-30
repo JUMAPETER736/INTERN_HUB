@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:internhub/Settings/UserDetails.dart';
 import 'package:internhub/Home/Applications.dart';
-import 'package:internhub/Home/EmployersDashBoard.dart';
+import 'package:internhub/Home/Vacancies.dart';
 import 'package:internhub/Home/Help.dart';
 import 'package:internhub/Home/InstitutionDashBoard.dart';
 import 'package:internhub/Home/Resources.dart';
@@ -99,13 +99,13 @@ class _HomePageState extends State<HomePage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => EmployersDashBoard(),
+                          builder: (context) => Vacancies(),
                         ),
                       );
                     },
                     child: _buildSquareCard(
                       icon: Icons.business_center,
-                      text: 'For Employers',
+                      text: 'Vacancies',
                       color: Colors.redAccent, // Updated color
                     ),
                   ),
