@@ -4,11 +4,11 @@ import 'package:internhub/Settings/UserDetails.dart';
 import 'package:internhub/Home/Applications.dart';
 import 'package:internhub/Home/Vacancies.dart';
 import 'package:internhub/Home/Help.dart';
-import 'package:internhub/Home/InstitutionDashBoard.dart';
+import 'package:internhub/Home/InternshipDashboard.dart'; // Updated import
 import 'package:internhub/Home/ApplicationResources.dart';
 import 'package:internhub/Home/Search.dart';
 import 'package:internhub/Settings/SettingsPage.dart';
-import 'package:internhub/LogIn_ And_Register/Log_In.dart'; // Import the LoginPage
+import 'package:internhub/LogIn_ And_Register/Log_In.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -17,12 +17,12 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  int _selectedIndex = 1; // To track the selected item in bottom navigation
+  int _selectedIndex = 1;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blueGrey, // Updated background color
+      backgroundColor: Colors.blueGrey,
       appBar: AppBar(
         title: Text(
           'InternHub',
@@ -34,7 +34,6 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             icon: Icon(Icons.search, color: Colors.white, size: 28),
             onPressed: () {
-              // Navigate to search page
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => Search()),
@@ -43,7 +42,7 @@ class _HomePageState extends State<HomePage> {
           ),
           IconButton(
             icon: Icon(Icons.logout, color: Colors.white, size: 28),
-            onPressed: _logout, // Call the logout function
+            onPressed: _logout,
           ),
         ],
       ),
@@ -59,7 +58,6 @@ class _HomePageState extends State<HomePage> {
                 mainAxisSpacing: 16,
                 childAspectRatio: 5.3 / 3,
                 children: [
-                  // Profile Section
                   GestureDetector(
                     onTap: () {
                       Navigator.push(
@@ -72,10 +70,9 @@ class _HomePageState extends State<HomePage> {
                     child: _buildSquareCard(
                       icon: Icons.person,
                       text: 'Your Profile',
-                      color: Colors.blueAccent, // Updated color
+                      color: Colors.blueAccent,
                     ),
                   ),
-                  // Internship Applications Section
                   GestureDetector(
                     onTap: () {
                       Navigator.push(
@@ -88,10 +85,9 @@ class _HomePageState extends State<HomePage> {
                     child: _buildSquareCard(
                       icon: Icons.work_outline,
                       text: 'My Applications',
-                      color: Colors.deepOrange, // Updated color
+                      color: Colors.deepOrange,
                     ),
                   ),
-                  // Employer Section
                   GestureDetector(
                     onTap: () {
                       Navigator.push(
@@ -103,27 +99,25 @@ class _HomePageState extends State<HomePage> {
                     },
                     child: _buildSquareCard(
                       icon: Icons.business_center,
-                      text: 'Vacancies',
-                      color: Colors.redAccent, // Updated color
+                      text: 'Internship Opportunities', // Updated text
+                      color: Colors.redAccent,
                     ),
                   ),
-                  // Employer Dashboard Section
                   GestureDetector(
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => InstitutionDashBard(),
+                          builder: (context) => InternshipDashboard(), // Updated to new class
                         ),
                       );
                     },
                     child: _buildSquareCard(
-                      icon: Icons.school,
-                      text: 'Employer Dashboard', // Renamed
-                      color: Colors.purpleAccent, // Updated color
+                      icon: Icons.dashboard,
+                      text: 'Internship Dashboard', // Updated text
+                      color: Colors.purpleAccent,
                     ),
                   ),
-                  // Application Resources Section
                   GestureDetector(
                     onTap: () {
                       Navigator.push(
@@ -135,8 +129,8 @@ class _HomePageState extends State<HomePage> {
                     },
                     child: _buildSquareCard(
                       icon: Icons.library_books,
-                      text: 'Application Resources', // Renamed
-                      color: Colors.tealAccent, // Updated color
+                      text: 'Application Resources',
+                      color: Colors.tealAccent,
                     ),
                   ),
                 ],
@@ -166,7 +160,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // Method to handle navigation on bottom navigation tap
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -187,14 +180,12 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  // Method to handle logout functionality
   void _logout() async {
-    await _auth.signOut(); // Sign out from Firebase
-    // Navigate to login page after logout
+    await _auth.signOut();
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => Log_In()),
-          (Route<dynamic> route) => false, // Removes all previous routes
+          (Route<dynamic> route) => false,
     );
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -202,7 +193,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // Method to build a square card
   Widget _buildSquareCard(
       {required IconData icon, required String text, required Color color}) {
     return Card(

@@ -1,12 +1,11 @@
-
 import 'package:flutter/material.dart';
 
-class InstitutionDashBard extends StatelessWidget {
+class InternshipDashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Institutions Dashboard'),
+        title: Text('Internship Dashboard'),
         backgroundColor: Colors.purple,
       ),
       drawer: Drawer(
@@ -18,7 +17,7 @@ class InstitutionDashBard extends StatelessWidget {
                 color: Colors.purple,
               ),
               child: Text(
-                'Institution Menu',
+                'User Menu',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 24,
@@ -29,27 +28,23 @@ class InstitutionDashBard extends StatelessWidget {
               leading: Icon(Icons.home),
               title: Text('Home'),
               onTap: () {
-                // Navigate to Home
                 Navigator.pushReplacementNamed(context, '/Home');
               },
             ),
             ListTile(
               leading: Icon(Icons.business),
-              title: Text('Manage Internships'),
+              title: Text('My Applications'),
               onTap: () {
-                // Navigate to Manage Internships page
-                Navigator.pushReplacementNamed(context, '/ManageInternships');
+                Navigator.pushReplacementNamed(context, '/MyApplications');
               },
             ),
             ListTile(
               leading: Icon(Icons.account_circle),
               title: Text('Profile Settings'),
               onTap: () {
-                // Navigate to Profile Settings page
                 Navigator.pushReplacementNamed(context, '/ProfileSettings');
               },
             ),
-
           ],
         ),
       ),
@@ -58,7 +53,7 @@ class InstitutionDashBard extends StatelessWidget {
         child: Column(
           children: [
             Text(
-              'Welcome to the Institutions Dashboard!',
+              'Welcome to the Internship Dashboard!',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 20),
@@ -68,27 +63,51 @@ class InstitutionDashBard extends StatelessWidget {
                 children: [
                   _buildDashboardCard(
                     context,
-                    Icons.assignment,
-                    'View Internships',
-                    '/ViewInternships',
+                    Icons.lightbulb,
+                    'Internship Tips', // New Feature
+                    '/InternshipTips',
                   ),
                   _buildDashboardCard(
                     context,
-                    Icons.receipt,
-                    'Manage Applications',
-                    '/ManageApplications',
+                    Icons.people,
+                    'Networking Opportunities', // New Feature
+                    '/NetworkingOpportunities',
                   ),
                   _buildDashboardCard(
                     context,
-                    Icons.notifications,
-                    'Notifications',
-                    '/Notifications',
+                    Icons.business_center,
+                    'Career Workshops', // New Feature
+                    '/CareerWorkshops',
                   ),
                   _buildDashboardCard(
                     context,
-                    Icons.help,
-                    'Help & Support',
-                    '/HelpSupport',
+                    Icons.video_library,
+                    'Webinars', // New Feature
+                    '/Webinars',
+                  ),
+                  _buildDashboardCard(
+                    context,
+                    Icons.assignment_ind,
+                    'Resume Builder', // New Feature
+                    '/ResumeBuilder',
+                  ),
+                  _buildDashboardCard(
+                    context,
+                    Icons.question_answer,
+                    'Interview Preparation', // New Feature
+                    '/InterviewPreparation',
+                  ),
+                  _buildDashboardCard(
+                    context,
+                    Icons.local_library,
+                    'Resource Library', // New Feature
+                    '/ResourceLibrary',
+                  ),
+                  _buildDashboardCard(
+                    context,
+                    Icons.timeline,
+                    'Internship Timeline', // New Feature
+                    '/InternshipTimeline',
                   ),
                 ],
               ),
