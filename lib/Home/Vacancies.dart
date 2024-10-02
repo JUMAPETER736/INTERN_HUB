@@ -81,7 +81,7 @@ class Vacancies extends StatelessWidget {
               style: TextStyle(
                 fontSize: 26,
                 fontWeight: FontWeight.bold,
-                color: Colors.redAccent,
+                color: Colors.black,
               ),
             ),
             SizedBox(height: 20),
@@ -132,6 +132,8 @@ class Vacancies extends StatelessWidget {
                 },
               ),
             ),
+            SizedBox(height: 20),
+            // Optional: Add a footer or button here for more actions
           ],
         ),
       ),
