@@ -9,6 +9,9 @@ import 'package:internhub/Home/ApplicationResources.dart';
 import 'package:internhub/Home/Search.dart';
 import 'package:internhub/Settings/SettingsPage.dart';
 import 'package:internhub/LogIn_ And_Register/Log_In.dart';
+import 'InternshipTips.dart'; // Import the new page
+import 'NetworkingOpportunities.dart'; // Import the new page
+import 'InterviewPreparation.dart'; // Import the new page
 
 class HomePage extends StatefulWidget {
   @override
@@ -99,23 +102,25 @@ class _HomePageState extends State<HomePage> {
                     },
                     child: _buildSquareCard(
                       icon: Icons.business_center,
-                      text: 'Internship Opportunities', // Updated text
+                      text: 'Vacancies',
                       color: Colors.redAccent,
                     ),
                   ),
+
+
                   GestureDetector(
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => InternshipDashboard(), // Updated to new class
+                          builder: (context) => InternshipTips(),
                         ),
                       );
                     },
                     child: _buildSquareCard(
-                      icon: Icons.dashboard,
-                      text: 'Internship Dashboard', // Updated text
-                      color: Colors.purpleAccent,
+                      icon: Icons.lightbulb_outline,
+                      text: 'Internship Tips',
+                      color: Colors.amberAccent,
                     ),
                   ),
                   GestureDetector(
@@ -123,14 +128,29 @@ class _HomePageState extends State<HomePage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ApplicationResources(),
+                          builder: (context) => NetworkingOpportunities(),
                         ),
                       );
                     },
                     child: _buildSquareCard(
-                      icon: Icons.library_books,
-                      text: 'Application Resources',
-                      color: Colors.tealAccent,
+                      icon: Icons.group,
+                      text: 'Networking Opportunities',
+                      color: Colors.greenAccent,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => InterviewPreparation(),
+                        ),
+                      );
+                    },
+                    child: _buildSquareCard(
+                      icon: Icons.access_alarm,
+                      text: 'Interview Preparation',
+                      color: Colors.orangeAccent,
                     ),
                   ),
                 ],

@@ -43,8 +43,11 @@ class MyApp extends StatelessWidget {
         '/VacancyDetails2': (context) => VacancyDetails2(),
         '/VacancyDetails3': (context) => VacancyDetails3(),
 
+
       },
       // or use onGenerateRoute if you want more dynamic route handling
     );
   }
 }
+
+
