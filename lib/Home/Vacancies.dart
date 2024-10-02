@@ -39,7 +39,7 @@ class Vacancies extends StatelessWidget {
     {
       "title": "IT Intern – Software Development at TechConnect",
       "route": '/VacancyDetails2',
-      "deadline": DateTime(2024, 10, 1), // Example deadline (past)
+      "deadline": DateTime(2024, 10, 5), // Example deadline (past)
     },
     {
       "title": "Marketing Intern – Brand Awareness Campaigns",

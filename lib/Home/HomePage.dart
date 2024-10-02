@@ -5,12 +5,10 @@ import 'package:internhub/Home/Applications.dart';
 import 'package:internhub/Home/Vacancies.dart';
 import 'package:internhub/Home/Help.dart';
 import 'package:internhub/Home/InstitutionDashBoard.dart';
-import 'package:internhub/Home/Resources.dart';
+import 'package:internhub/Home/ApplicationResources.dart';
 import 'package:internhub/Home/Search.dart';
 import 'package:internhub/Settings/SettingsPage.dart';
 import 'package:internhub/LogIn_ And_Register/Log_In.dart'; // Import the LoginPage
-
-
 
 class HomePage extends StatefulWidget {
   @override
@@ -109,7 +107,7 @@ class _HomePageState extends State<HomePage> {
                       color: Colors.redAccent, // Updated color
                     ),
                   ),
-                  // Educational Institutions Section
+                  // Employer Dashboard Section
                   GestureDetector(
                     onTap: () {
                       Navigator.push(
@@ -121,23 +119,23 @@ class _HomePageState extends State<HomePage> {
                     },
                     child: _buildSquareCard(
                       icon: Icons.school,
-                      text: 'For Institutions',
+                      text: 'Employer Dashboard', // Renamed
                       color: Colors.purpleAccent, // Updated color
                     ),
                   ),
-                  // Resource Center Section
+                  // Application Resources Section
                   GestureDetector(
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => Resources(),
+                          builder: (context) => ApplicationResources(),
                         ),
                       );
                     },
                     child: _buildSquareCard(
                       icon: Icons.library_books,
-                      text: 'Professional Resources',
+                      text: 'Application Resources', // Renamed
                       color: Colors.tealAccent, // Updated color
                     ),
                   ),

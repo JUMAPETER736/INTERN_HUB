@@ -5,12 +5,14 @@ class Application {
   final String company;
   final String status;
   final String submissionDate;
+  final String details; // Added details field
 
   Application({
     required this.internshipTitle,
     required this.company,
     required this.status,
     required this.submissionDate,
+    required this.details, // Added details field in constructor
   });
 }
 
@@ -26,18 +28,21 @@ class _ApplicationsState extends State<Applications> {
       company: 'Tech Solutions',
       status: 'Applied',
       submissionDate: '2024-09-01',
+      details: 'This internship involves working on software development projects using modern technologies.',
     ),
     Application(
       internshipTitle: 'Marketing Intern',
       company: 'Creative Agency',
       status: 'Interview Scheduled',
       submissionDate: '2024-09-10',
+      details: 'You will assist in digital marketing campaigns and content creation.',
     ),
     Application(
       internshipTitle: 'Data Analyst Intern',
       company: 'Data Corp',
       status: 'Rejected',
       submissionDate: '2024-09-15',
+      details: 'This position focuses on analyzing data sets to derive actionable insights.',
     ),
   ];
 
@@ -222,6 +227,16 @@ class ApplicationDetailPage extends StatelessWidget {
             Text(
               'Submitted on: ${application.submissionDate}',
               style: TextStyle(fontSize: 18, color: Colors.grey[500]),
+            ),
+            SizedBox(height: 20),
+            Text(
+              'Details:',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.grey[800]),
+            ),
+            SizedBox(height: 10),
+            Text(
+              application.details, // Displaying the details here
+              style: TextStyle(fontSize: 16, color: Colors.grey[700]),
             ),
             SizedBox(height: 30),
             ElevatedButton(
