@@ -4,14 +4,14 @@ import 'package:internhub/Settings/UserDetails.dart';
 import 'package:internhub/Home/Applications.dart';
 import 'package:internhub/Home/Vacancies.dart';
 import 'package:internhub/Home/Help.dart';
-import 'package:internhub/Home/InternshipDashboard.dart'; // Updated import
-import 'package:internhub/Home/ApplicationResources.dart';
+import 'package:internhub/Home/InternshipTips.dart'; // Updated import
 import 'package:internhub/Home/Search.dart';
 import 'package:internhub/Settings/SettingsPage.dart';
 import 'package:internhub/LogIn_ And_Register/Log_In.dart';
-import 'InternshipTips.dart'; // Import the new page
-import 'NetworkingOpportunities.dart'; // Import the new page
-import 'InterviewPreparation.dart'; // Import the new page
+import 'package:internhub/Home/NetworkingOpportunities.dart'; // Import the new page
+import 'package:internhub/Home/InterviewPreparation.dart'; // Import the new page
+import 'package:internhub/Home/FeedbackForm.dart';
+
 
 class HomePage extends StatefulWidget {
   @override
@@ -106,6 +106,24 @@ class _HomePageState extends State<HomePage> {
                       color: Colors.redAccent,
                     ),
                   ),
+
+                  // In your HomePage or relevant page
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => FeedbackForm(),
+                        ),
+                      );
+                    },
+                    child: _buildSquareCard(
+                      icon: Icons.feedback,
+                      text: 'Give Feedback',
+                      color: Colors.purpleAccent,
+                    ),
+                  ),
+
 
 
                   GestureDetector(

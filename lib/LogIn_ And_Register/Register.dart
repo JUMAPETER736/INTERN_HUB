@@ -206,21 +206,23 @@ class _RegisterState extends State<Register> {
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10), // Rounded corners
                             ),
-                            filled: true,
-                            fillColor: Colors.grey[200], // Light background
+                            prefixIcon: Icon(Icons.lock, color: Colors.blueAccent),
                             suffixIcon: IconButton(
                               icon: Icon(
-                                _obscurePassword ? Icons.visibility : Icons.visibility_off,
-                                color: Colors.blue,
+                                _obscurePassword
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
                               ),
                               onPressed: () {
                                 setState(() {
-                                  _obscurePassword = !_obscurePassword; // Toggle password visibility
+                                  _obscurePassword = !_obscurePassword;
                                 });
                               },
                             ),
+                            filled: true,
+                            fillColor: Colors.grey[200], // Light background
                           ),
-                          obscureText: _obscurePassword,
+                          obscureText: _obscurePassword, // Toggle password visibility
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please enter your Password';
@@ -230,6 +232,7 @@ class _RegisterState extends State<Register> {
                         ),
                         SizedBox(height: 20),
                         // Confirm Password Field
+// Confirm Password Field
                         TextFormField(
                           controller: _confirmPasswordController,
                           decoration: InputDecoration(
@@ -237,31 +240,32 @@ class _RegisterState extends State<Register> {
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10), // Rounded corners
                             ),
-                            filled: true,
-                            fillColor: Colors.grey[200], // Light background
+                            prefixIcon: Icon(Icons.lock, color: Colors.blueAccent),
                             suffixIcon: IconButton(
                               icon: Icon(
-                                _obscureConfirmPassword ? Icons.visibility : Icons.visibility_off,
-                                color: Colors.blue,
+                                _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
                               ),
                               onPressed: () {
                                 setState(() {
-                                  _obscureConfirmPassword = !_obscureConfirmPassword; // Toggle confirm password visibility
+                                  _obscureConfirmPassword = !_obscureConfirmPassword;
                                 });
                               },
                             ),
+                            filled: true,
+                            fillColor: Colors.grey[200], // Light background
                           ),
-                          obscureText: _obscureConfirmPassword,
+                          obscureText: _obscureConfirmPassword, // Toggle password visibility
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Please confirm your Password';
+                              return 'Please enter your Password';
                             }
-                            if (value != _passwordController.text) {
-                              return 'Passwords do not match';
+                            if (value != _passwordController.text.trim()) {
+                              return 'Passwords do not match'; // Show error if passwords are not equal
                             }
                             return null;
                           },
                         ),
+
                         SizedBox(height: 30),
                         // Sign Up Button
                         SizedBox(

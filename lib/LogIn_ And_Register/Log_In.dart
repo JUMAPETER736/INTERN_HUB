@@ -176,21 +176,23 @@ class _Log_InState extends State<Log_In> {
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10), // Rounded corners
                             ),
-                            filled: true,
-                            fillColor: Colors.grey[200], // Light background
+                            prefixIcon: Icon(Icons.lock, color: Colors.blueAccent),
                             suffixIcon: IconButton(
                               icon: Icon(
-                                _obscurePassword ? Icons.visibility : Icons.visibility_off,
-                                color: Colors.blue,
+                                _obscurePassword
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
                               ),
                               onPressed: () {
                                 setState(() {
-                                  _obscurePassword = !_obscurePassword; // Toggle password visibility
+                                  _obscurePassword = !_obscurePassword;
                                 });
                               },
                             ),
+                            filled: true,
+                            fillColor: Colors.grey[200], // Light background
                           ),
-                          obscureText: _obscurePassword,
+                          obscureText: _obscurePassword, // Toggle password visibility
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please enter your Password';
