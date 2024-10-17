@@ -48,6 +48,8 @@ class MyApp extends StatelessWidget {
         '/PrivacyPolicy': (context) => PrivacyPolicy(),
         '/TermsOfService': (context) => TermsOfService(),
         '/Support': (context) => Support(),
+
+
       },
     );
   }

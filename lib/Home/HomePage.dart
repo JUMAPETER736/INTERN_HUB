@@ -11,6 +11,7 @@ import 'package:internhub/LogIn_ And_Register/Log_In.dart';
 import 'package:internhub/Home/NetworkingOpportunities.dart'; // Import the new page
 import 'package:internhub/Home/InterviewPreparation.dart'; // Import the new page
 import 'package:internhub/Home/FeedbackForm.dart';
+import 'package:internhub/Home/Company.dart';
 
 
 class HomePage extends StatefulWidget {
@@ -121,6 +122,22 @@ class _HomePageState extends State<HomePage> {
                       icon: Icons.feedback,
                       text: 'Give Feedback',
                       color: Colors.purpleAccent,
+                    ),
+                  ),
+
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Company(), // Navigate to the Company page
+                        ),
+                      );
+                    },
+                    child: _buildSquareCard(
+                      icon: Icons.business, // Choose an appropriate icon
+                      text: 'For Companies',
+                      color: Colors.tealAccent, // Choose a color that fits well with the design
                     ),
                   ),
 
