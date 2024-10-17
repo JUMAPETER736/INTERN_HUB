@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 
 class Company extends StatelessWidget {
   @override
@@ -161,7 +163,8 @@ class Company extends StatelessWidget {
   }
 }
 
-// Post Internship Opportunity Page
+
+
 class PostInternship extends StatefulWidget {
   @override
   _PostInternshipState createState() => _PostInternshipState();
@@ -176,6 +179,9 @@ class _PostInternshipState extends State<PostInternship> {
   String? _duration;
   String? _stipend;
   String? _category;
+
+  // Firestore instance
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -287,31 +293,79 @@ class _PostInternshipState extends State<PostInternship> {
     );
   }
 
+  // Format the title for use as a Firestore document ID
+  String formatTitle(String title) {
+    // Replace spaces with underscores and remove special characters
+    return title.replaceAll(' ', '_').replaceAll(RegExp(r'[^\w\s]'), '');
+  }
+
   // Post Internship Button
   Widget _buildPostButton(BuildContext context) {
     return ElevatedButton.icon(
-      onPressed: () {
+      onPressed: () async {
         if (_formKey.currentState!.validate()) { // Check if form is valid
           _formKey.currentState!.save(); // Save the form values
 
-          // Logic to post internship
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Text('Success!', style: TextStyle(color: Colors.teal)),
-                content: Text('Internship opportunity posted successfully!'),
-                actions: [
-                  TextButton(
-                    child: Text('OK'),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ],
-              );
-            },
-          );
+          try {
+            // Format the title for use as the document ID
+            String formattedTitle = formatTitle(_internshipTitle!);
+
+            // Use the formatted internship title as the document ID in Firestore
+            await _firestore.collection('Internship_Posted')
+                .doc(_category) // Use the selected category as the document
+                .collection('Opportunities')
+                .doc(formattedTitle) // Use the formatted title as document ID
+                .set({
+              'title': _internshipTitle,
+              'description': _internshipDescription,
+              'requirements': _requirements,
+              'location': _location,
+              'duration': _duration,
+              'stipend': _stipend,
+              'category': _category,
+              'timestamp': FieldValue.serverTimestamp(), // Add a timestamp
+            });
+
+            // Show success dialog
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text('Success!', style: TextStyle(color: Colors.teal)),
+                  content: Text('Internship opportunity posted successfully!'),
+                  actions: [
+                    TextButton(
+                      child: Text('OK'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        // Optionally, reset the form
+                        _formKey.currentState?.reset();
+                      },
+                    ),
+                  ],
+                );
+              },
+            );
+          } catch (e) {
+            // Show error dialog
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text('Error', style: TextStyle(color: Colors.red)),
+                  content: Text('Failed to post internship: $e'),
+                  actions: [
+                    TextButton(
+                      child: Text('OK'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                );
+              },
+            );
+          }
         }
       },
       icon: Icon(Icons.send),
@@ -326,6 +380,7 @@ class _PostInternshipState extends State<PostInternship> {
     );
   }
 }
+
 // Manage Internships Page
 class ManageInternship extends StatelessWidget {
   @override
