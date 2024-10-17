@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:internhub/Vacancy/VacancyDetails1.dart';
 import 'package:internhub/Vacancy/VacancyDetails2.dart';
 import 'package:internhub/Vacancy/VacancyDetails3.dart';
@@ -28,25 +28,59 @@ class InternHubApp extends StatelessWidget {
   }
 }
 
-class Vacancies extends StatelessWidget {
-  // Sample list of vacancies with deadlines
-  final List<Map<String, dynamic>> vacancies = [
-    {
-      "title": "Research Assistants (15) – WASH Projects Sustainability Research",
-      "route": '/VacancyDetails1',
-      "deadline": DateTime(2024, 10, 15), // Example deadline
-    },
-    {
-      "title": "IT Intern – Software Development at TechConnect",
-      "route": '/VacancyDetails2',
-      "deadline": DateTime(2024, 10, 5), // Example deadline (past)
-    },
-    {
-      "title": "Marketing Intern – Brand Awareness Campaigns",
-      "route": '/VacancyDetails3',
-      "deadline": DateTime(2024, 10, 20), // Example deadline
-    },
-  ];
+class Vacancies extends StatefulWidget {
+  @override
+  _VacanciesState createState() => _VacanciesState();
+}
+
+class _VacanciesState extends State<Vacancies> {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  List<Map<String, dynamic>> internships = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchInternships();
+  }
+
+  Future<void> _fetchInternships() async {
+    try {
+      // Fetch internships from Firestore
+      QuerySnapshot querySnapshot = await _firestore
+          .collection('Internship_Posted')
+          .doc('Marketing')
+          .collection('Opportunities')
+          .get();
+
+      // Map the documents to a list
+      List<Map<String, dynamic>> fetchedInternships = querySnapshot.docs.asMap().map((index, doc) {
+        DateTime postingDate = (doc['timestamp'] as Timestamp).toDate(); // Use the timestamp for posting date
+        DateTime deadline = postingDate.add(Duration(days: 14)); // Set deadline to 2 weeks after posting date
+
+        return MapEntry(index, {
+          'title': doc['title'] ?? 'No Title', // Provide a default value if title is missing
+          'description': doc['description'] ?? 'No Description', // Default value for description
+          'category': doc['category'] ?? 'No Category', // Default value for category
+          'duration': doc['duration'] ?? 'No Duration', // Default value for duration
+          'location': doc['location'] ?? 'No Location', // Default value for location
+          'requirements': doc['requirements'] ?? 'No Requirements', // Default value for requirements
+          'stipend': doc['stipend'] ?? 'No Stipend', // Default value for stipend
+          'postingDate': postingDate, // Include the posting date for reference
+          'deadline': deadline, // Use calculated deadline directly
+          'route': '/VacancyDetails${index + 1}', // Use index + 1 to match detail routes
+        });
+      }).values.toList();
+
+      // Sort the internships alphabetically by title
+      fetchedInternships.sort((a, b) => a['title'].compareTo(b['title']));
+
+      setState(() {
+        internships = fetchedInternships; // Update the state
+      });
+    } catch (e) {
+      print('Error fetching internships: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +88,7 @@ class Vacancies extends StatelessWidget {
     DateTime today = DateTime.now();
 
     // Filter vacancies to only include those that haven't expired
-    final List<Map<String, dynamic>> activeVacancies = vacancies.where((vacancy) {
+    final List<Map<String, dynamic>> activeVacancies = internships.where((vacancy) {
       return vacancy["deadline"].isAfter(today);
     }).toList();
 
@@ -101,7 +135,7 @@ class Vacancies extends StatelessWidget {
                         vertical: 20,
                       ),
                       title: Text(
-                        activeVacancies[index]["title"]!,
+                        activeVacancies[index]["title"],
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
@@ -125,7 +159,11 @@ class Vacancies extends StatelessWidget {
                         color: Colors.redAccent,
                       ),
                       onTap: () {
-                        Navigator.pushNamed(context, activeVacancies[index]["route"]!);
+                        // Make sure the route exists before navigating
+                        String route = activeVacancies[index]["route"];
+                        if (route != null && route.isNotEmpty) {
+                          Navigator.pushNamed(context, route);
+                        }
                       },
                     ),
                   );
@@ -133,7 +171,6 @@ class Vacancies extends StatelessWidget {
               ),
             ),
             SizedBox(height: 20),
-            // Optional: Add a footer or button here for more actions
           ],
         ),
       ),

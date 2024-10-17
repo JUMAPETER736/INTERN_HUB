@@ -325,7 +325,8 @@ class _PostInternshipState extends State<PostInternship> {
                 'duration': _duration,
                 'stipend': _stipend,
                 'category': _category,
-                'timestamp': FieldValue.serverTimestamp(), // Add a timestamp
+                'postingDate': FieldValue.serverTimestamp(), // Add the posting date
+                'timestamp': FieldValue.serverTimestamp(), // Add a separate timestamp if needed
               });
 
               // Show success dialog
@@ -388,6 +389,7 @@ class _PostInternshipState extends State<PostInternship> {
       ),
     );
   }
+
 
 
 }
