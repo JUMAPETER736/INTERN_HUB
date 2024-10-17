@@ -299,86 +299,97 @@ class _PostInternshipState extends State<PostInternship> {
     return title.replaceAll(' ', '_').replaceAll(RegExp(r'[^\w\s]'), '');
   }
 
-  // Post Internship Button
+// Post Internship Button
   Widget _buildPostButton(BuildContext context) {
-    return ElevatedButton.icon(
-      onPressed: () async {
-        if (_formKey.currentState!.validate()) { // Check if form is valid
-          _formKey.currentState!.save(); // Save the form values
+    return Align(
+      alignment: Alignment.centerRight, // Align the button to the right
+      child: ElevatedButton(
+        onPressed: () async {
+          if (_formKey.currentState!.validate()) { // Check if form is valid
+            _formKey.currentState!.save(); // Save the form values
 
-          try {
-            // Format the title for use as the document ID
-            String formattedTitle = formatTitle(_internshipTitle!);
+            try {
+              // Format the title for use as the document ID
+              String formattedTitle = formatTitle(_internshipTitle!);
 
-            // Use the formatted internship title as the document ID in Firestore
-            await _firestore.collection('Internship_Posted')
-                .doc(_category) // Use the selected category as the document
-                .collection('Opportunities')
-                .doc(formattedTitle) // Use the formatted title as document ID
-                .set({
-              'title': _internshipTitle,
-              'description': _internshipDescription,
-              'requirements': _requirements,
-              'location': _location,
-              'duration': _duration,
-              'stipend': _stipend,
-              'category': _category,
-              'timestamp': FieldValue.serverTimestamp(), // Add a timestamp
-            });
+              // Use the formatted internship title as the document ID in Firestore
+              await _firestore.collection('Internship_Posted')
+                  .doc(_category) // Use the selected category as the document
+                  .collection('Opportunities')
+                  .doc(formattedTitle) // Use the formatted title as document ID
+                  .set({
+                'title': _internshipTitle,
+                'description': _internshipDescription,
+                'requirements': _requirements,
+                'location': _location,
+                'duration': _duration,
+                'stipend': _stipend,
+                'category': _category,
+                'timestamp': FieldValue.serverTimestamp(), // Add a timestamp
+              });
 
-            // Show success dialog
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: Text('Success!', style: TextStyle(color: Colors.teal)),
-                  content: Text('Internship opportunity posted successfully!'),
-                  actions: [
-                    TextButton(
-                      child: Text('OK'),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        // Optionally, reset the form
-                        _formKey.currentState?.reset();
-                      },
-                    ),
-                  ],
-                );
-              },
-            );
-          } catch (e) {
-            // Show error dialog
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: Text('Error', style: TextStyle(color: Colors.red)),
-                  content: Text('Failed to post internship: $e'),
-                  actions: [
-                    TextButton(
-                      child: Text('OK'),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  ],
-                );
-              },
-            );
+              // Show success dialog
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('Success!', style: TextStyle(color: Colors.teal)),
+                    content: Text('Internship opportunity posted successfully!'),
+                    actions: [
+                      TextButton(
+                        child: Text('OK'),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          // Optionally, reset the form
+                          _formKey.currentState?.reset();
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
+            } catch (e) {
+              // Show error dialog
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('Error', style: TextStyle(color: Colors.red)),
+                    content: Text('Failed to post internship: $e'),
+                    actions: [
+                      TextButton(
+                        child: Text('OK'),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
+            }
           }
-        }
-      },
-      icon: Icon(Icons.send),
-      label: Text('Post Internship'),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.teal,
-        padding: EdgeInsets.symmetric(vertical: 14),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.teal,
+          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16), // Adjust padding
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min, // Reduce the button size
+          children: [
+            Text('Post Internship'),
+            SizedBox(width: 8), // Space between text and icon
+            Icon(Icons.send),
+          ],
         ),
       ),
     );
   }
+
+
 }
 
 // Manage Internships Page
