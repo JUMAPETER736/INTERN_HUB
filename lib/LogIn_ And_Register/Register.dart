@@ -23,13 +23,43 @@ class _RegisterState extends State<Register> {
   bool _obscureConfirmPassword = true;
 
   Future<void> _saveCompanyDetails(User user) async {
-    // Save company details in Firestore
-    await FirebaseFirestore.instance.collection('Company_Details').doc(user.email).set({
-      'companyName': _companyNameController.text.trim(),
-      'email': user.email,
-      'companyAddress': _companyAddressController.text.trim(),
-      'createdAt': Timestamp.now(),
-    });
+    try {
+      // Save company details in Firestore
+      await FirebaseFirestore.instance.collection('Company_Details').doc(user.email).set({
+        'companyName': _companyNameController.text.trim(),
+        'email': user.email,
+        'companyAddress': _companyAddressController.text.trim(),
+        'createdAt': Timestamp.now(),
+      });
+
+      // Optionally, you can add a success message or perform further actions
+      print('Company details saved successfully.');
+    } catch (e) {
+      // Handle any errors
+      print('Error saving company details: $e');
+    }
+  }
+
+  Future<void> _saveInternDetails(User user) async {
+    try {
+      // Save intern details in Firestore
+      await FirebaseFirestore.instance
+          .collection('Intern_Personal_Details') // Correct collection name
+          .doc(user.email) // Using the user's email as the document ID
+          .set({
+        'name': _nameController.text.trim(),
+        'email': user.email,
+        'age': _ageController.text.trim(),
+        'gender': _selectedGender,
+        'createdAt': Timestamp.now(),
+      });
+
+      // Optionally, you can add a success message or perform further actions
+      print('Intern details saved successfully.');
+    } catch (e) {
+      // Handle any errors
+      print('Error saving intern details: $e');
+    }
   }
 
   void _showSuccessToast([String message = "Registered Successfully"]) {
@@ -57,7 +87,6 @@ class _RegisterState extends State<Register> {
         _showSuccessToast();
 
         // Do not log in the user automatically, let them manually log in later
-
       } on FirebaseAuthException catch (e) {
         // Show error message
         String message = e.message ?? "Registration failed";
@@ -69,6 +98,41 @@ class _RegisterState extends State<Register> {
         );
       }
     }
+  }
+
+  Future<void> _registerIntern() async {
+    if (_formKey.currentState?.validate() ?? false) {
+      try {
+        // Create user with email and password
+        UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
+        );
+
+        // Save intern details to Firestore
+        await _saveInternDetails(userCredential.user!);
+
+        // Show success message for intern registration
+        _showSuccessToast();
+
+        // Do not log in the user automatically, let them manually log in later
+      } on FirebaseAuthException catch (e) {
+        // Show error message
+        String message = e.message ?? "Registration failed";
+        Fluttertoast.showToast(
+          msg: message,
+          toastLength: Toast.LENGTH_SHORT,
+          textColor: Colors.red,
+          fontSize: 16.0,
+        );
+      }
+    }
+  }
+
+  // Email validation function
+  bool _isEmailValid(String email) {
+    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
+    return emailRegex.hasMatch(email);
   }
 
   @override
@@ -125,11 +189,11 @@ class _RegisterState extends State<Register> {
                         _isCompany ? _buildCompanyForm() : _buildInternForm(),
 
                         SizedBox(height: 30),
-                        // Register Button for Company Only
+                        // Register Button for Company and Intern
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: _isCompany ? _registerCompany : null,
+                            onPressed: _isCompany ? _registerCompany : _registerIntern,
                             child: Text('Register'),
                             style: ElevatedButton.styleFrom(
                               padding: EdgeInsets.all(16),
@@ -259,7 +323,7 @@ class _RegisterState extends State<Register> {
           ),
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return 'Please enter your Company Name';
+              return 'Please enter the Company Name';
             }
             return null;
           },
@@ -278,7 +342,7 @@ class _RegisterState extends State<Register> {
           ),
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return 'Please enter your Company Address';
+              return 'Please enter the Company Address';
             }
             return null;
           },
@@ -289,14 +353,13 @@ class _RegisterState extends State<Register> {
     );
   }
 
-  // Common email, password, and confirm password fields
+  // Common fields for both Intern and Company
   Widget _buildCommonFields() {
     return Column(
       children: [
         // Email Field
         TextFormField(
           controller: _emailController,
-          keyboardType: TextInputType.emailAddress,
           decoration: InputDecoration(
             labelText: 'Email',
             border: OutlineInputBorder(
@@ -307,9 +370,9 @@ class _RegisterState extends State<Register> {
           ),
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return 'Please enter your Email';
+              return 'Please enter an Email';
             }
-            if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+            if (!_isEmailValid(value)) {
               return 'Please enter a valid Email';
             }
             return null;
@@ -322,6 +385,11 @@ class _RegisterState extends State<Register> {
           obscureText: _obscurePassword,
           decoration: InputDecoration(
             labelText: 'Password',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            filled: true,
+            fillColor: Colors.grey[200],
             suffixIcon: IconButton(
               icon: Icon(_obscurePassword ? Icons.visibility : Icons.visibility_off),
               onPressed: () {
@@ -330,18 +398,13 @@ class _RegisterState extends State<Register> {
                 });
               },
             ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            filled: true,
-            fillColor: Colors.grey[200],
           ),
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return 'Please enter your Password';
+              return 'Please enter a Password';
             }
             if (value.length < 6) {
-              return 'Password must be at least 6 characters long';
+              return 'Password must be at least 6 characters';
             }
             return null;
           },
@@ -353,6 +416,11 @@ class _RegisterState extends State<Register> {
           obscureText: _obscureConfirmPassword,
           decoration: InputDecoration(
             labelText: 'Confirm Password',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            filled: true,
+            fillColor: Colors.grey[200],
             suffixIcon: IconButton(
               icon: Icon(_obscureConfirmPassword ? Icons.visibility : Icons.visibility_off),
               onPressed: () {
@@ -361,11 +429,6 @@ class _RegisterState extends State<Register> {
                 });
               },
             ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            filled: true,
-            fillColor: Colors.grey[200],
           ),
           validator: (value) {
             if (value == null || value.isEmpty) {
