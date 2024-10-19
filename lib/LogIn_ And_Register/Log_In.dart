@@ -11,9 +11,11 @@ class Log_In extends StatefulWidget {
 class _Log_InState extends State<Log_In> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _companyNameController = TextEditingController(); // Controller for Company Name
   final _formKey = GlobalKey<FormState>();
   bool _obscurePassword = true; // To toggle password visibility
   String? _errorMessage; // To hold error messages
+  bool _isCompany = false; // Declare _isCompany here
 
   Future<void> _logIn() async {
     setState(() {
@@ -144,6 +146,60 @@ class _Log_InState extends State<Log_In> {
                               style: TextStyle(color: Colors.red, fontSize: 16),
                             ),
                           ),
+                        // Toggle for Intern or Company Registration
+                        ToggleButtons(
+                          isSelected: [_isCompany, !_isCompany],
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                              child: Text(
+                                'Company',
+                                style: TextStyle(color: _isCompany ? Colors.white : Colors.blueAccent),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                              child: Text(
+                                'Intern',
+                                style: TextStyle(color: !_isCompany ? Colors.white : Colors.blueAccent),
+                              ),
+                            ),
+                          ],
+                          onPressed: (int index) {
+                            setState(() {
+                              _isCompany = index == 0;
+                              _emailController.clear(); // Clear email controller when switching user types
+                              _companyNameController.clear(); // Clear company name controller when switching user types
+                            });
+                          },
+                          color: Colors.blueAccent, // Color of unselected buttons
+                          selectedColor: Colors.white, // Color of selected text
+                          fillColor: Colors.blueAccent, // Background color of selected button
+                          borderColor: Colors.blueAccent, // Border color for unselected buttons
+                          selectedBorderColor: Colors.blueAccent, // Border color for selected button
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        SizedBox(height: 20),
+                        // Company Name Field (visible only for Company)
+                        if (_isCompany)
+                          TextFormField(
+                            controller: _companyNameController,
+                            decoration: InputDecoration(
+                              labelText: 'Company Name',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10), // Rounded corners
+                              ),
+                              filled: true,
+                              fillColor: Colors.grey[200], // Light background
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your Company Name';
+                              }
+                              return null;
+                            },
+                          ),
+                        SizedBox(height: 20),
                         // Email Field
                         TextFormField(
                           controller: _emailController,
@@ -159,7 +215,7 @@ class _Log_InState extends State<Log_In> {
                             if (value == null || value.isEmpty) {
                               return 'Please enter your Email';
                             }
-                            if (!RegExp(
+                            if (_isCompany && !RegExp(
                                 r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
                                 .hasMatch(value)) {
                               return 'Please enter a valid Email';
@@ -229,7 +285,7 @@ class _Log_InState extends State<Log_In> {
                             Navigator.pushReplacementNamed(context, '/Register');
                           },
                           child: Text(
-                            'Don\'t have an Account? Sign Up',
+                            'Don\'t have an account? Sign Up',
                             style: TextStyle(color: Colors.blue),
                           ),
                         ),
