@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:internhub/Home/HomePage.dart'; // Import the HomePage
 
@@ -23,6 +24,17 @@ class _Log_InState extends State<Log_In> {
     });
 
     if (_formKey.currentState?.validate() ?? false) {
+      if (_isCompany) {
+        // Check if the entered company name exists in Firestore
+        bool companyExists = await _checkCompanyName(_companyNameController.text.trim());
+        if (!companyExists) {
+          setState(() {
+            _errorMessage = "Company Name not found. Please check.";
+          });
+          return; // Stop the login process if the company name is incorrect
+        }
+      }
+
       try {
         // Log in with email and password
         UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -51,6 +63,20 @@ class _Log_InState extends State<Log_In> {
           });
         }
       }
+    }
+  }
+
+  // Method to check if company name exists in Firestore
+  Future<bool> _checkCompanyName(String companyName) async {
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('Companies')
+          .where('name', isEqualTo: companyName)
+          .get();
+      return snapshot.docs.isNotEmpty;
+    } catch (e) {
+
+      return false;
     }
   }
 
@@ -248,7 +274,7 @@ class _Log_InState extends State<Log_In> {
                             filled: true,
                             fillColor: Colors.grey[200], // Light background
                           ),
-                          obscureText: _obscurePassword, // Toggle password visibility
+                          obscureText: _obscurePassword,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please enter your Password';
@@ -256,38 +282,24 @@ class _Log_InState extends State<Log_In> {
                             return null;
                           },
                         ),
-                        SizedBox(height: 30),
-                        // Log In Button
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: _logIn,
-                            child: Text('Log In'),
-                            style: ElevatedButton.styleFrom(
-                              padding: EdgeInsets.all(16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10), // Rounded button
-                              ),
-                              backgroundColor: Colors.blueAccent, // Button color
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        // Forgot Password
+                        SizedBox(height: 20),
+                        // Forgot Password Button
                         TextButton(
                           onPressed: _showForgotPasswordDialog,
-                          child: Text('Forgot your Password?', style: TextStyle(color: Colors.blue)),
+                          child: Text('Forgot Password?', style: TextStyle(color: Colors.blue)),
                         ),
-                        SizedBox(height: 10),
-                        // Switch to Sign Up
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pushReplacementNamed(context, '/Register');
-                          },
-                          child: Text(
-                            'Don\'t have an account? Sign Up',
-                            style: TextStyle(color: Colors.blue),
+                        SizedBox(height: 20),
+                        // Login Button
+                        ElevatedButton(
+                          onPressed: _logIn,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blueAccent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10), // Rounded corners
+                            ),
+                            padding: EdgeInsets.symmetric(horizontal: 100, vertical: 15),
                           ),
+                          child: Text('Log In', style: TextStyle(fontSize: 20)),
                         ),
                       ],
                     ),
