@@ -94,46 +94,51 @@ class _HomePageState extends State<HomePage> {
   List<Widget> _buildGridItems() {
     List<Widget> gridItems = [];
 
-    // Common items for all users
-    gridItems.add(_buildSquareCard(
-      icon: Icons.person,
-      text: 'Your Profile',
-      color: Colors.blueAccent,
-      onTap: () => _navigateTo(UserDetails()),
-    ));
-    gridItems.add(_buildSquareCard(
-      icon: Icons.work_outline,
-      text: 'My Applications',
-      color: Colors.deepOrange,
-      onTap: () => _navigateTo(Applications()),
-    ));
-    gridItems.add(_buildSquareCard(
-      icon: Icons.business_center,
-      text: 'Vacancies',
-      color: Colors.redAccent,
-      onTap: () => _navigateTo(Vacancies()),
-    ));
-    gridItems.add(_buildSquareCard(
-      icon: Icons.lightbulb_outline,
-      text: 'Internship Tips',
-      color: Colors.amberAccent,
-      onTap: () => _navigateTo(InternshipTips()),
-    ));
-    gridItems.add(_buildSquareCard(
-      icon: Icons.group,
-      text: 'Networking Opportunities',
-      color: Colors.greenAccent,
-      onTap: () => _navigateTo(NetworkingOpportunities()),
-    ));
-    gridItems.add(_buildSquareCard(
-      icon: Icons.access_alarm,
-      text: 'Interview Preparation',
-      color: Colors.orangeAccent,
-      onTap: () => _navigateTo(InterviewPreparation()),
-    ));
-
-    // Check user role to add additional items for Companies
-    if (widget.userRole == 'Company') {
+    // Check user role to build grid items
+    if (widget.userRole == 'Intern') {
+      gridItems.add(_buildSquareCard(
+        icon: Icons.lightbulb_outline,
+        text: 'Internship Tips',
+        color: Colors.amberAccent,
+        onTap: () => _navigateTo(InternshipTips()),
+      ));
+      gridItems.add(_buildSquareCard(
+        icon: Icons.group,
+        text: 'Networking Opportunities',
+        color: Colors.greenAccent,
+        onTap: () => _navigateTo(NetworkingOpportunities()),
+      ));
+      gridItems.add(_buildSquareCard(
+        icon: Icons.business_center,
+        text: 'Vacancies',
+        color: Colors.redAccent,
+        onTap: () => _navigateTo(Vacancies()),
+      ));
+      gridItems.add(_buildSquareCard(
+        icon: Icons.work_outline,
+        text: 'My Applications',
+        color: Colors.deepOrange,
+        onTap: () => _navigateTo(Applications()),
+      ));
+      gridItems.add(_buildSquareCard(
+        icon: Icons.person,
+        text: 'Your Profile',
+        color: Colors.blueAccent,
+        onTap: () => _navigateTo(UserDetails()),
+      ));
+    } else if (widget.userRole == 'Company') {
+      gridItems.add(_buildSquareCard(
+        icon: Icons.person,
+        text: 'Your Profile',
+        color: Colors.blueAccent,
+        onTap: () => _navigateTo(UserDetails()),
+      ));
+      gridItems.add(_buildSquareCard(
+        icon: Icons.group,
+        text: 'Networking Opportunities',
+        color: Colors.greenAccent,
+        onTap: () => _navigateTo(NetworkingOpportunities()),
+      ));
       gridItems.add(_buildSquareCard(
         icon: Icons.business,
         text: 'For Companies',
