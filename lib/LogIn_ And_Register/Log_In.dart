@@ -75,7 +75,6 @@ class _Log_InState extends State<Log_In> {
           .get();
       return snapshot.docs.isNotEmpty;
     } catch (e) {
-
       return false;
     }
   }
@@ -300,6 +299,13 @@ class _Log_InState extends State<Log_In> {
                             padding: EdgeInsets.symmetric(horizontal: 100, vertical: 15),
                           ),
                           child: Text('Log In', style: TextStyle(fontSize: 20)),
+                        ),
+                        SizedBox(height: 20),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.pushReplacementNamed(context, '/Register');
+                          },
+                          child: Text('Don\'t have an Account? Sign Up', style: TextStyle(color: Colors.blue)),
                         ),
                       ],
                     ),
