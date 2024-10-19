@@ -26,7 +26,10 @@ class _Log_InState extends State<Log_In> {
     if (_formKey.currentState?.validate() ?? false) {
       if (_isCompany) {
         // Check if the entered company name exists in Firestore
-        bool companyExists = await _checkCompanyName(_companyNameController.text.trim());
+        bool companyExists = await _checkCompanyName(
+          _companyNameController.text.trim(),
+          _emailController.text.trim(), // Pass the email as the second argument
+        );
         if (!companyExists) {
           setState(() {
             _errorMessage = "Company Name not found. Please check.";
@@ -45,7 +48,9 @@ class _Log_InState extends State<Log_In> {
         // Navigate to HomePage after successful login
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => HomePage()),
+          MaterialPageRoute(
+            builder: (context) => HomePage(userRole: _isCompany ? 'Company' : 'Intern'), // Pass user role
+          ),
         );
       } on FirebaseAuthException catch (e) {
         // Check the error code and set appropriate error message
@@ -66,16 +71,26 @@ class _Log_InState extends State<Log_In> {
     }
   }
 
-  // Method to check if company name exists in Firestore
-  Future<bool> _checkCompanyName(String companyName) async {
+  Future<bool> _checkCompanyName(String companyName, String email) async {
     try {
-      final snapshot = await FirebaseFirestore.instance
-          .collection('Companies')
-          .where('name', isEqualTo: companyName)
+      // Get the document for the specified email
+      final docSnapshot = await FirebaseFirestore.instance
+          .collection('Company_Details')
+          .doc(email) // Use the company email as the document ID
           .get();
-      return snapshot.docs.isNotEmpty;
+
+      // Check if the document exists and retrieve the company name
+      if (docSnapshot.exists) {
+        final data = docSnapshot.data();
+        if (data != null && data['companyName'] != null) {
+          // Compare the company name
+          return data['companyName'].toString().toUpperCase() == companyName.toUpperCase();
+        }
+      }
+      return false; // Return false if document doesn't exist or company name not found
     } catch (e) {
-      return false;
+      print("Error checking company name for email: $email, company name: $companyName. Error: $e");
+      return false; // Return false on error
     }
   }
 
@@ -257,55 +272,59 @@ class _Log_InState extends State<Log_In> {
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10), // Rounded corners
                             ),
-                            prefixIcon: Icon(Icons.lock, color: Colors.blueAccent),
+                            filled: true,
+                            fillColor: Colors.grey[200], // Light background
                             suffixIcon: IconButton(
                               icon: Icon(
-                                _obscurePassword
-                                    ? Icons.visibility_off
-                                    : Icons.visibility,
+                                _obscurePassword ? Icons.visibility : Icons.visibility_off, // Corrected order
                               ),
                               onPressed: () {
                                 setState(() {
-                                  _obscurePassword = !_obscurePassword;
+                                  _obscurePassword = !_obscurePassword; // Toggle password visibility
                                 });
                               },
                             ),
-                            filled: true,
-                            fillColor: Colors.grey[200], // Light background
                           ),
-                          obscureText: _obscurePassword,
+                          obscureText: _obscurePassword, // Use the toggle state
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please enter your Password';
                             }
-                            return null;
+                            return null; // Valid input
                           },
                         ),
-                        SizedBox(height: 20),
-                        // Forgot Password Button
-                        TextButton(
-                          onPressed: _showForgotPasswordDialog,
-                          child: Text('Forgot Password?', style: TextStyle(color: Colors.blue)),
-                        ),
+
                         SizedBox(height: 20),
                         // Login Button
                         ElevatedButton(
                           onPressed: _logIn,
+                          child: Text('Log In'),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blueAccent,
+                            padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10), // Rounded corners
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                            padding: EdgeInsets.symmetric(horizontal: 100, vertical: 15),
                           ),
-                          child: Text('Log In', style: TextStyle(fontSize: 20)),
                         ),
-                        SizedBox(height: 20),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pushReplacementNamed(context, '/Register');
+                        SizedBox(height: 10),
+                        // Forgot Password Button
+                        TextButton(
+                          onPressed: _showForgotPasswordDialog,
+                          child: Text(
+                            'Forgot Password?',
+                            style: TextStyle(color: Colors.blueAccent),
+                          ),
+                        ),
+                        // Sign Up Link
+                        SizedBox(height: 10),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/Register'); // Navigate to the Register page
                           },
-                          child: Text('Don\'t have an Account? Sign Up', style: TextStyle(color: Colors.blue)),
+                          child: Text(
+                            'Already have an Account? Sign Up',
+                            style: TextStyle(color: Colors.blueAccent),
+                          ),
                         ),
                       ],
                     ),
