@@ -301,7 +301,93 @@ class _RegisterState extends State<Register> {
           },
         ),
         SizedBox(height: 20),
-        _buildCommonFields(),
+        // Email Field
+        TextFormField(
+          controller: _emailController,
+          decoration: InputDecoration(
+            labelText: 'Email',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            filled: true,
+            fillColor: Colors.grey[200],
+          ),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter your Email';
+            }
+            if (!_isEmailValid(value)) {
+              return 'Please enter a valid Email';
+            }
+            return null;
+          },
+        ),
+        SizedBox(height: 20),
+        // Password Field
+        TextFormField(
+          controller: _passwordController,
+          obscureText: _obscurePassword,
+          decoration: InputDecoration(
+            labelText: 'Password',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            filled: true,
+            fillColor: Colors.grey[200],
+            suffixIcon: IconButton(
+              icon: Icon(
+                _obscurePassword ? Icons.visibility_off : Icons.visibility,
+              ),
+              onPressed: () {
+                setState(() {
+                  _obscurePassword = !_obscurePassword;
+                });
+              },
+            ),
+          ),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter your Password';
+            }
+            if (value.length < 6) {
+              return 'Password must be at least 6 characters';
+            }
+            return null;
+          },
+        ),
+        SizedBox(height: 20),
+        // Confirm Password Field
+        TextFormField(
+          controller: _confirmPasswordController,
+          obscureText: _obscureConfirmPassword,
+          decoration: InputDecoration(
+            labelText: 'Confirm Password',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            filled: true,
+            fillColor: Colors.grey[200],
+            suffixIcon: IconButton(
+              icon: Icon(
+                _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
+              ),
+              onPressed: () {
+                setState(() {
+                  _obscureConfirmPassword = !_obscureConfirmPassword;
+                });
+              },
+            ),
+          ),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please confirm your Password';
+            }
+            if (value != _passwordController.text) {
+              return 'Passwords do not match';
+            }
+            return null;
+          },
+        ),
       ],
     );
   }
@@ -323,7 +409,7 @@ class _RegisterState extends State<Register> {
           ),
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return 'Please enter the Company Name';
+              return 'Please enter your Company Name';
             }
             return null;
           },
@@ -342,21 +428,12 @@ class _RegisterState extends State<Register> {
           ),
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return 'Please enter the Company Address';
+              return 'Please enter your Company Address';
             }
             return null;
           },
         ),
         SizedBox(height: 20),
-        _buildCommonFields(),
-      ],
-    );
-  }
-
-  // Common fields for both Intern and Company
-  Widget _buildCommonFields() {
-    return Column(
-      children: [
         // Email Field
         TextFormField(
           controller: _emailController,
@@ -370,7 +447,7 @@ class _RegisterState extends State<Register> {
           ),
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return 'Please enter an Email';
+              return 'Please enter your Email';
             }
             if (!_isEmailValid(value)) {
               return 'Please enter a valid Email';
@@ -391,7 +468,9 @@ class _RegisterState extends State<Register> {
             filled: true,
             fillColor: Colors.grey[200],
             suffixIcon: IconButton(
-              icon: Icon(_obscurePassword ? Icons.visibility : Icons.visibility_off),
+              icon: Icon(
+                _obscurePassword ? Icons.visibility_off : Icons.visibility,
+              ),
               onPressed: () {
                 setState(() {
                   _obscurePassword = !_obscurePassword;
@@ -401,7 +480,7 @@ class _RegisterState extends State<Register> {
           ),
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return 'Please enter a Password';
+              return 'Please enter your Password';
             }
             if (value.length < 6) {
               return 'Password must be at least 6 characters';
@@ -422,7 +501,9 @@ class _RegisterState extends State<Register> {
             filled: true,
             fillColor: Colors.grey[200],
             suffixIcon: IconButton(
-              icon: Icon(_obscureConfirmPassword ? Icons.visibility : Icons.visibility_off),
+              icon: Icon(
+                _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
+              ),
               onPressed: () {
                 setState(() {
                   _obscureConfirmPassword = !_obscureConfirmPassword;
