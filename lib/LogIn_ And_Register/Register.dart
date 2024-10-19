@@ -237,63 +237,7 @@ class _RegisterState extends State<Register> {
           },
         ),
         SizedBox(height: 20),
-        _buildCommonFields(),
-      ],
-    );
-  }
-
-  // Build form for company registration
-  Widget _buildCompanyForm() {
-    return Column(
-      children: [
-        // Company Name Field
-        TextFormField(
-          controller: _companyNameController,
-          decoration: InputDecoration(
-            labelText: 'Company Name',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            filled: true,
-            fillColor: Colors.grey[200],
-          ),
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Please enter your Company Name';
-            }
-            return null;
-          },
-        ),
-        SizedBox(height: 20),
-        // Company Address Field
-        TextFormField(
-          controller: _companyAddressController,
-          decoration: InputDecoration(
-            labelText: 'Company Address',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            filled: true,
-            fillColor: Colors.grey[200],
-          ),
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Please enter your Company Address';
-            }
-            return null;
-          },
-        ),
-        SizedBox(height: 20),
-        _buildCommonFields(),
-      ],
-    );
-  }
-
-  // Common email, password, and confirm password fields
-  Widget _buildCommonFields() {
-    return Column(
-      children: [
-        // Email Field
+        // Common Email Field
         TextFormField(
           controller: _emailController,
           keyboardType: TextInputType.emailAddress,
@@ -380,4 +324,3 @@ class _RegisterState extends State<Register> {
       ],
     );
   }
-}
