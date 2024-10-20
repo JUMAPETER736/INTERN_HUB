@@ -270,13 +270,13 @@ class _Log_InState extends State<Log_In> {
                           decoration: InputDecoration(
                             labelText: 'Password',
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10), // Rounded corners
+                              borderRadius: BorderRadius.circular(10),
                             ),
                             filled: true,
-                            fillColor: Colors.grey[200], // Light background
+                            fillColor: Colors.grey[200],
                             suffixIcon: IconButton(
                               icon: Icon(
-                                _obscurePassword ? Icons.visibility : Icons.visibility_off, // Corrected order
+                                _obscurePassword ? Icons.visibility_off : Icons.visibility, // Corrected order
                               ),
                               onPressed: () {
                                 setState(() {
@@ -285,6 +285,7 @@ class _Log_InState extends State<Log_In> {
                               },
                             ),
                           ),
+
                           obscureText: _obscurePassword, // Use the toggle state
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -298,14 +299,19 @@ class _Log_InState extends State<Log_In> {
                         // Login Button
                         ElevatedButton(
                           onPressed: _logIn,
-                          child: Text('Log In'),
                           style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blueAccent, // Set button color to blueAccent
                             padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: BorderRadius.circular(10), // Rounded corners
                             ),
                           ),
+                          child: Text(
+                            'Log In',
+                            style: TextStyle(color: Colors.white), // Set text color to white
+                          ),
                         ),
+
                         SizedBox(height: 10),
                         // Forgot Password Button
                         TextButton(
