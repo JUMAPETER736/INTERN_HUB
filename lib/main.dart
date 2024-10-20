@@ -5,9 +5,6 @@ import 'package:internhub/LogIn_ And_Register/Register.dart';
 import 'firebase_options.dart';
 import 'package:internhub/Home/HomePage.dart';
 import 'package:internhub/Home/Vacancies.dart';
-import 'package:internhub/Vacancy/VacancyDetails1.dart';
-import 'package:internhub/Vacancy/VacancyDetails2.dart';
-import 'package:internhub/Vacancy/VacancyDetails3.dart';
 import 'package:internhub/Settings/SettingsPage.dart';
 import 'package:internhub/Settings/NotificationSettings.dart';
 import 'package:internhub/Settings/LanguageSettings.dart';
@@ -39,15 +36,13 @@ class MyApp extends StatelessWidget {
         '/LogIn': (context) => Log_In(), // Define LogIn route
         '/Register': (context) => Register(), // Define Register route
         '/Home': (context) => HomePage(userRole: ModalRoute.of(context)!.settings.arguments as String), // Pass userRole
-        '/VacancyDetails1': (context) => VacancyDetails1(),
-        '/VacancyDetails2': (context) => VacancyDetails2(),
-        '/VacancyDetails3': (context) => VacancyDetails3(),
         '/NotificationSettings': (context) => NotificationSettings(),
         '/LanguageSettings': (context) => LanguageSettings(),
         '/ThemeSettings': (context) => ThemeSettings(),
         '/PrivacyPolicy': (context) => PrivacyPolicy(),
         '/TermsOfService': (context) => TermsOfService(),
         '/Support': (context) => Support(),
+        '/Vacancies': (context) => Vacancies(),
 
 
       },

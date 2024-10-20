@@ -157,7 +157,7 @@ class _UserDetailsState extends State<UserDetails> {
           _buildProfileField('Company Name', companyDetails!['companyName']),
           _buildProfileField('Email', companyDetails!['email']),
           _buildProfileField('Address', companyDetails!['companyAddress']),
-          //_buildProfileField('Created At', companyDetails!['createdAt']?.toDate().toString() ?? 'N/A'), // Format as needed
+
           SizedBox(height: 20),
           _buildStyledButton('Change Password', _navigateToChangePassword),
         ],
