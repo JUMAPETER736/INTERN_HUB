@@ -16,6 +16,8 @@ class _UserDetailsState extends State<UserDetails> {
   final TextEditingController _programController = TextEditingController();
 
   Map<String, dynamic>? userDetails;
+  Map<String, dynamic>? companyDetails;
+  bool isIntern = false; // Flag to determine if the user is an intern
 
   @override
   void initState() {
@@ -28,19 +30,48 @@ class _UserDetailsState extends State<UserDetails> {
 
     if (user != null) {
       try {
-        DocumentSnapshot snapshot = await _firestore
-            .collection('Intern_Personal_Details')
-            .doc(user.email)
-            .get();
+        // Check if user is an intern or company based on their email
+        if (user.email!.contains('@')) {
+          // Assuming interns have a specific email format
+          isIntern = true;
+          DocumentSnapshot snapshot = await _firestore
+              .collection('Intern_Personal_Details')
+              .doc(user.email)
+              .get();
 
-        if (snapshot.exists) {
-          setState(() {
-            userDetails = snapshot.data() as Map<String, dynamic>?;
+          if (snapshot.exists) {
+            setState(() {
+              userDetails = snapshot.data() as Map<String, dynamic>?;
 
-            _phoneController.text = userDetails!['phone'] ?? '';
-            _universityController.text = userDetails!['university'] ?? '';
-            _programController.text = userDetails!['course'] ?? '';
-          });
+              _phoneController.text = userDetails!['phone'] ?? '';
+              _universityController.text = userDetails!['university'] ?? '';
+              _programController.text = userDetails!['course'] ?? '';
+            });
+          } else {
+            // Handle case where intern document doesn't exist
+            setState(() {
+              userDetails = null; // Reset to null if not found
+            });
+            print('Intern document not found for email: ${user.email}');
+          }
+        } else {
+          // Fetch company details
+          DocumentSnapshot snapshot = await _firestore
+              .collection('Company_Details')
+              .doc(user.email)
+              .get();
+
+          if (snapshot.exists) {
+            setState(() {
+              companyDetails = snapshot.data() as Map<String, dynamic>?;
+            });
+          } else {
+            // Handle case where company document doesn't exist
+            setState(() {
+              companyDetails = null; // Reset to null if not found
+            });
+            print('Company document not found for email: ${user.email}');
+          }
         }
       } catch (e) {
         print('Error fetching user details: $e');
@@ -48,10 +79,11 @@ class _UserDetailsState extends State<UserDetails> {
     }
   }
 
+
   Future<void> _updateUserDetails() async {
     User? user = _auth.currentUser;
 
-    if (user != null) {
+    if (user != null && isIntern) {
       try {
         await _firestore.collection('Intern_Personal_Details').doc(user.email).update({
           'phone': _phoneController.text,
@@ -90,27 +122,53 @@ class _UserDetailsState extends State<UserDetails> {
             end: Alignment.bottomRight,
           ),
         ),
-        child: userDetails == null
-            ? Center(child: CircularProgressIndicator())
-            : Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: ListView(
-            children: [
-              _buildProfileField('Name', userDetails!['name']),
-              _buildProfileField('Email', userDetails!['email']),
-              _buildEditableField('Phone', _phoneController),
-              _buildEditableField('University', _universityController),
-              _buildEditableField('Program', _programController),
-              SizedBox(height: 20),
-              _buildStyledButton('Save Changes', _updateUserDetails),
-              SizedBox(height: 10),
-              _buildStyledButton('Change Password', _navigateToChangePassword),
-            ],
-          ),
-        ),
+        child: isIntern ? _buildInternProfile() : _buildCompanyProfile(),
       ),
     );
   }
+
+  Widget _buildInternProfile() {
+    return userDetails == null
+        ? Center(child: CircularProgressIndicator())
+        : Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: ListView(
+        children: [
+          _buildProfileField('Name', userDetails!['name']),
+          _buildProfileField('Email', userDetails!['email']),
+          _buildEditableField('Phone', _phoneController),
+          _buildEditableField('University', _universityController),
+          _buildEditableField('Program', _programController),
+          SizedBox(height: 20),
+          _buildStyledButton('Save Changes', _updateUserDetails),
+          SizedBox(height: 10),
+          _buildStyledButton('Change Password', _navigateToChangePassword),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCompanyProfile() {
+    if (companyDetails == null) {
+      return Center(child: Text('No company details found.'));
+    }
+
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: ListView(
+        children: [
+          _buildProfileField('Company Name', companyDetails!['companyName']),
+          _buildProfileField('Email', companyDetails!['email']),
+          _buildProfileField('Address', companyDetails!['companyAddress']),
+          _buildProfileField('Created At', companyDetails!['createdAt']?.toDate().toString() ?? 'N/A'), // Format as needed
+          SizedBox(height: 20),
+          _buildStyledButton('Change Password', _navigateToChangePassword),
+        ],
+      ),
+    );
+  }
+
+
 
   Widget _buildStyledButton(String title, VoidCallback onPressed) {
     return ElevatedButton(
@@ -267,88 +325,57 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         title: Text('Change Password'),
         backgroundColor: Colors.teal,
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.lightBlueAccent, Colors.white],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: ListView(
-            children: [
-              _buildPasswordField('Old Password', _oldPasswordController, true),
-              _buildPasswordField('New Password', _newPasswordController, _newPasswordVisible),
-              _buildPasswordField('Confirm Password', _confirmPasswordController, _confirmPasswordVisible),
-              SizedBox(height: 20),
-              _buildStyledButton('Change Password', _changePassword),
-            ],
-          ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            _buildPasswordField('Old Password', _oldPasswordController, false),
+            SizedBox(height: 10),
+            _buildPasswordField('New Password', _newPasswordController, _newPasswordVisible),
+            SizedBox(height: 10),
+            _buildPasswordField('Confirm New Password', _confirmPasswordController, _confirmPasswordVisible),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _changePassword,
+              child: Text('Change Password'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.teal,
+                padding: EdgeInsets.symmetric(vertical: 15.0),
+                textStyle: TextStyle(fontSize: 18),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildStyledButton(String title, VoidCallback onPressed) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.teal,
-        padding: EdgeInsets.symmetric(vertical: 15.0),
-        textStyle: TextStyle(fontSize: 18),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-      ),
-      child: Text(title),
-    );
-  }
-
-  Widget _buildPasswordField(String title, TextEditingController controller, bool isVisible) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10.0),
-      child: Card(
-        elevation: 3,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: controller,
-                  obscureText: !isVisible,
-                  decoration: InputDecoration(
-                    labelText: title,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: Colors.teal),
-                    ),
-                  ),
-                  style: TextStyle(fontSize: 16),
-                ),
-              ),
-              IconButton(
-                icon: Icon(
-                  isVisible ? Icons.visibility : Icons.visibility_off,
-                  color: Colors.teal,
-                ),
-                onPressed: () {
-                  setState(() {
-                    if (title == 'New Password') {
-                      _newPasswordVisible = !_newPasswordVisible;
-                    } else if (title == 'Confirm Password') {
-                      _confirmPasswordVisible = !_confirmPasswordVisible;
-                    }
-                  });
-                },
-              ),
-            ],
+  Widget _buildPasswordField(String label, TextEditingController controller, bool isVisible) {
+    return TextField(
+      controller: controller,
+      obscureText: !isVisible,
+      decoration: InputDecoration(
+        labelText: label,
+        suffixIcon: IconButton(
+          icon: Icon(
+            isVisible ? Icons.visibility : Icons.visibility_off,
           ),
+          onPressed: () {
+            setState(() {
+              if (label == 'New Password') {
+                _newPasswordVisible = !_newPasswordVisible;
+              } else {
+                _confirmPasswordVisible = !_confirmPasswordVisible;
+              }
+            });
+          },
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: Colors.teal),
         ),
       ),
     );
