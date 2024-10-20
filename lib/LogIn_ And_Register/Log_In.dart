@@ -18,26 +18,14 @@ class _Log_InState extends State<Log_In> {
   String? _errorMessage; // To hold error messages
   bool _isCompany = false; // Declare _isCompany here
 
+
+
   Future<void> _logIn() async {
     setState(() {
       _errorMessage = null; // Reset the error message
     });
 
     if (_formKey.currentState?.validate() ?? false) {
-      if (_isCompany) {
-        // Check if the entered company name exists in Firestore
-        bool companyExists = await _checkCompanyName(
-          _companyNameController.text.trim(),
-          _emailController.text.trim(), // Pass the email as the second argument
-        );
-        if (!companyExists) {
-          setState(() {
-            _errorMessage = "Company Name not found. Please check.";
-          });
-          return; // Stop the login process if the company name is incorrect
-        }
-      }
-
       try {
         // Log in with email and password
         UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -71,6 +59,7 @@ class _Log_InState extends State<Log_In> {
     }
   }
 
+
   Future<bool> _checkCompanyName(String companyName, String email) async {
     try {
       // Get the document for the specified email
@@ -83,16 +72,27 @@ class _Log_InState extends State<Log_In> {
       if (docSnapshot.exists) {
         final data = docSnapshot.data();
         if (data != null && data['companyName'] != null) {
-          // Compare the company name
-          return data['companyName'].toString().toUpperCase() == companyName.toUpperCase();
+          // Compare the company name in a case-insensitive manner
+          String storedCompanyName = data['companyName'].toString();
+          if (storedCompanyName.toUpperCase() == companyName.toUpperCase()) {
+            return true; // Company name matches
+          }
         }
       }
-      return false; // Return false if document doesn't exist or company name not found
+      return false; // Return false if document doesn't exist or company name doesn't match
     } catch (e) {
-      print("Error checking company name for email: $email, company name: $companyName. Error: $e");
+      // Handle permission errors explicitly
+      if (e.toString().contains('permission-denied')) {
+        print("Permission error when checking company name for email: $email.");
+      } else {
+        print("Error checking company name for email: $email, company name: $companyName. Error: $e");
+      }
       return false; // Return false on error
     }
   }
+
+
+
 
   // Method to handle password reset
   Future<void> _resetPassword(String email) async {
