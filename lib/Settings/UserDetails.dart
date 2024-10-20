@@ -30,9 +30,9 @@ class _UserDetailsState extends State<UserDetails> {
 
     if (user != null) {
       try {
-        // Check if user is an intern or company based on their email
-        if (user.email!.contains('@')) {
-          // Assuming interns have a specific email format
+        // Determine if the user is an intern or company based on their email format
+        if (user.email!.contains('@unima.ac.mw')) {
+          // Interns assumed to have a specific email format
           isIntern = true;
           DocumentSnapshot snapshot = await _firestore
               .collection('Intern_Personal_Details')
@@ -48,14 +48,13 @@ class _UserDetailsState extends State<UserDetails> {
               _programController.text = userDetails!['course'] ?? '';
             });
           } else {
-            // Handle case where intern document doesn't exist
             setState(() {
-              userDetails = null; // Reset to null if not found
+              userDetails = null;
             });
-            print('Intern document not found for email: ${user.email}');
+            print('Intern document not found for Email: ${user.email}');
           }
         } else {
-          // Fetch company details
+          // Fetch company details if it's a company
           DocumentSnapshot snapshot = await _firestore
               .collection('Company_Details')
               .doc(user.email)
@@ -66,11 +65,10 @@ class _UserDetailsState extends State<UserDetails> {
               companyDetails = snapshot.data() as Map<String, dynamic>?;
             });
           } else {
-            // Handle case where company document doesn't exist
             setState(() {
-              companyDetails = null; // Reset to null if not found
+              companyDetails = null;
             });
-            print('Company document not found for email: ${user.email}');
+            print('Company document not found for Email: ${user.email}');
           }
         }
       } catch (e) {
@@ -78,7 +76,6 @@ class _UserDetailsState extends State<UserDetails> {
       }
     }
   }
-
 
   Future<void> _updateUserDetails() async {
     User? user = _auth.currentUser;
@@ -92,7 +89,7 @@ class _UserDetailsState extends State<UserDetails> {
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Profile updated successfully!')),
+          SnackBar(content: Text('Profile updated Successfully!')),
         );
       } catch (e) {
         print('Error updating user details: $e');
@@ -150,7 +147,7 @@ class _UserDetailsState extends State<UserDetails> {
 
   Widget _buildCompanyProfile() {
     if (companyDetails == null) {
-      return Center(child: Text('No company details found.'));
+      return Center(child: Text('No Company details found.'));
     }
 
     return Padding(
@@ -160,15 +157,13 @@ class _UserDetailsState extends State<UserDetails> {
           _buildProfileField('Company Name', companyDetails!['companyName']),
           _buildProfileField('Email', companyDetails!['email']),
           _buildProfileField('Address', companyDetails!['companyAddress']),
-          _buildProfileField('Created At', companyDetails!['createdAt']?.toDate().toString() ?? 'N/A'), // Format as needed
+          //_buildProfileField('Created At', companyDetails!['createdAt']?.toDate().toString() ?? 'N/A'), // Format as needed
           SizedBox(height: 20),
           _buildStyledButton('Change Password', _navigateToChangePassword),
         ],
       ),
     );
   }
-
-
 
   Widget _buildStyledButton(String title, VoidCallback onPressed) {
     return ElevatedButton(
@@ -282,14 +277,14 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
       if (newPassword == oldPassword) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('New password must be different from old password.')),
+          SnackBar(content: Text('New password must be different from Old Password.')),
         );
         return;
       }
 
       if (newPassword != confirmPassword) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('New passwords do not match.')),
+          SnackBar(content: Text('New Passwords do not match.')),
         );
         return;
       }
@@ -302,17 +297,17 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         );
 
         await user.reauthenticateWithCredential(credential);
+
+        // Change the password to the new one
         await user.updatePassword(newPassword);
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Password changed successfully!')),
+          SnackBar(content: Text('Password updated successfully!')),
         );
-
-        Navigator.pop(context); // Go back to the previous screen
+        Navigator.pop(context); // Navigate back to the profile screen
       } catch (e) {
-        print('Error changing password: $e');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Incorrect old password. Please try again.')),
+          SnackBar(content: Text('Error changing password: $e')),
         );
       }
     }
@@ -329,15 +324,23 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            _buildPasswordField('Old Password', _oldPasswordController, false),
-            SizedBox(height: 10),
-            _buildPasswordField('New Password', _newPasswordController, _newPasswordVisible),
-            SizedBox(height: 10),
-            _buildPasswordField('Confirm New Password', _confirmPasswordController, _confirmPasswordVisible),
+            _buildPasswordField('Old Password', _oldPasswordController, obscureText: true),
             SizedBox(height: 20),
+            _buildPasswordField('New Password', _newPasswordController, obscureText: !_newPasswordVisible, toggleVisibility: () {
+              setState(() {
+                _newPasswordVisible = !_newPasswordVisible;
+              });
+            }),
+            SizedBox(height: 20),
+            _buildPasswordField('Confirm New Password', _confirmPasswordController, obscureText: !_confirmPasswordVisible, toggleVisibility: () {
+              setState(() {
+                _confirmPasswordVisible = !_confirmPasswordVisible;
+              });
+            }),
+            SizedBox(height: 40),
             ElevatedButton(
               onPressed: _changePassword,
-              child: Text('Change Password'),
+              child: Text('Update Password'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.teal,
                 padding: EdgeInsets.symmetric(vertical: 15.0),
@@ -353,30 +356,22 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     );
   }
 
-  Widget _buildPasswordField(String label, TextEditingController controller, bool isVisible) {
+  Widget _buildPasswordField(String label, TextEditingController controller,
+      {required bool obscureText, VoidCallback? toggleVisibility}) {
     return TextField(
       controller: controller,
-      obscureText: !isVisible,
+      obscureText: obscureText,
       decoration: InputDecoration(
         labelText: label,
-        suffixIcon: IconButton(
-          icon: Icon(
-            isVisible ? Icons.visibility : Icons.visibility_off,
-          ),
-          onPressed: () {
-            setState(() {
-              if (label == 'New Password') {
-                _newPasswordVisible = !_newPasswordVisible;
-              } else {
-                _confirmPasswordVisible = !_confirmPasswordVisible;
-              }
-            });
-          },
-        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: Colors.teal),
         ),
+        suffixIcon: toggleVisibility != null
+            ? IconButton(
+          icon: Icon(obscureText ? Icons.visibility_off : Icons.visibility),
+          onPressed: toggleVisibility,
+        )
+            : null,
       ),
     );
   }
