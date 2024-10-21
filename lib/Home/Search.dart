@@ -6,39 +6,54 @@ class Search extends StatefulWidget {
 }
 
 class _SearchState extends State<Search> {
-  // List of sections/topics in the InternHub mobile app
-  List<String> appFeatures = [
-    'Settings',
-    'Internship Tips',
-    'Interview Preparations',
-    'Network Operations',
-    'Application Resources',
-    'Upcoming Events',
-    'Saved Internships',
-    'Featured Internships',
-    'Post Internship Opportunities',
-    'Manage Internships',
-    'View Applications',
-  ];
+  // Map of sections/topics and their sub-items in the InternHub mobile app
+  Map<String, List<String>> appFeatures = {
+    'Settings': ['Themes', 'Language', 'Notifications', 'Privacy Policy'],
+    'Internship Tips': ['Resume Tips', 'Networking Tips', 'Interview Tips'],
+    'Interview Preparations': ['Common Questions', 'Dress Code', 'Practice Tips'],
+    'Network Operations': ['Connectivity Issues', 'VPN Setup', 'Server Management'],
+    'Application Resources': ['Internship Guides', 'Resume Templates'],
+    'Upcoming Events': ['Career Fair', 'Internship Webinar'],
+    'Saved Internships': [],
+    'Featured Internships': [],
+    'Post Internship Opportunities': [],
+    'Manage Internships': [],
+    'View Applications': [],
+  };
 
   // List to hold search results
-  List<String> searchResults = [];
+  List<Map<String, String>> searchResults = [];
 
   @override
   void initState() {
     super.initState();
-    searchResults = appFeatures; // Initially show all sections
+    searchResults = _getAllFeatures(); // Initially show all sections and sub-items
   }
 
-  // Function to filter sections/topics based on search query
+  // Function to retrieve all features and their sub-items as a flat list
+  List<Map<String, String>> _getAllFeatures() {
+    List<Map<String, String>> allFeatures = [];
+    appFeatures.forEach((section, subItems) {
+      allFeatures.add({'section': section, 'subItem': ''});
+      subItems.forEach((subItem) {
+        allFeatures.add({'section': section, 'subItem': subItem});
+      });
+    });
+    return allFeatures;
+  }
+
+  // Function to filter sections and sub-items based on search query
   void filterSearchResults(String query) {
-    List<String> results = [];
+    List<Map<String, String>> results = [];
     if (query.isNotEmpty) {
-      results = appFeatures
-          .where((feature) => feature.toLowerCase().contains(query.toLowerCase()))
-          .toList();
+      results = _getAllFeatures().where((feature) {
+        String searchText = feature['subItem']!.isEmpty
+            ? feature['section']!
+            : feature['subItem']!;
+        return searchText.toLowerCase().contains(query.toLowerCase());
+      }).toList();
     } else {
-      results = appFeatures;
+      results = _getAllFeatures();
     }
     setState(() {
       searchResults = results;
@@ -78,19 +93,23 @@ class _SearchState extends State<Search> {
                   ? ListView.builder(
                 itemCount: searchResults.length,
                 itemBuilder: (context, index) {
+                  String section = searchResults[index]['section']!;
+                  String subItem = searchResults[index]['subItem']!;
                   return Card(
                     elevation: 4.0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),
                     ),
                     child: ListTile(
-                      title: Text(searchResults[index]),
+                      title: subItem.isEmpty ? Text(section) : Text('$section > $subItem'),
                       trailing: Icon(Icons.arrow_forward_ios),
                       onTap: () {
-                        // Handle tap on a section (navigate to details, etc.)
+                        // Handle tap on a section or sub-item (navigate to details, etc.)
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('${searchResults[index]} tapped!'),
+                            content: Text(subItem.isEmpty
+                                ? '$section tapped!'
+                                : '$subItem under $section tapped!'),
                           ),
                         );
                       },
