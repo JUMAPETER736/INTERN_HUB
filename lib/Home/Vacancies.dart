@@ -14,7 +14,7 @@ class InternHubApp extends StatelessWidget {
         primarySwatch: Colors.red,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-
+      home: Vacancies(),
     );
   }
 }
@@ -27,11 +27,14 @@ class Vacancies extends StatefulWidget {
 class _VacanciesState extends State<Vacancies> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   List<Map<String, dynamic>> internships = [];
+  List<Map<String, dynamic>> filteredInternships = [];
+  TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _fetchInternships();
+    _searchController.addListener(_searchInternships);
   }
 
   Future<void> _fetchInternships() async {
@@ -70,25 +73,40 @@ class _VacanciesState extends State<Vacancies> {
 
       setState(() {
         internships = fetchedInternships;
+        filteredInternships = internships; // Initialize filtered list
       });
     } catch (e) {
       print('Error fetching internships: $e');
     }
   }
 
+  void _searchInternships() {
+    String query = _searchController.text.toLowerCase();
+    setState(() {
+      filteredInternships = internships.where((internship) {
+        return internship['title'].toLowerCase().contains(query) ||
+            internship['location'].toLowerCase().contains(query) ||
+            internship['category'].toLowerCase().contains(query);
+      }).toList();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     DateTime today = DateTime.now();
 
-    final List<Map<String, dynamic>> activeVacancies = internships.where((vacancy) {
-      return vacancy["deadline"].isAfter(today);
-    }).toList();
+    final List<Map<String, dynamic>> activeVacancies = filteredInternships
+        .where((vacancy) => vacancy["deadline"].isAfter(today))
+        .toList();
 
     return Scaffold(
       appBar: AppBar(
         title: Text('Released Vacancies'),
         backgroundColor: Colors.redAccent,
         elevation: 5,
+        actions: [
+
+        ],
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -102,6 +120,15 @@ class _VacanciesState extends State<Vacancies> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                labelText: 'Search Internships',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(),
+              ),
+            ),
+            SizedBox(height: 20),
             Text(
               'Available Vacancies',
               style: TextStyle(
@@ -258,6 +285,87 @@ class VacancyDetails extends StatelessWidget {
           );
         },
       ),
+    );
+  }
+}
+
+class InternshipSearchDelegate extends SearchDelegate {
+  final List<Map<String, dynamic>> internships;
+
+  InternshipSearchDelegate({required this.internships});
+
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(
+        icon: Icon(Icons.clear),
+        onPressed: () {
+          query = '';
+        },
+      ),
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: Icon(Icons.arrow_back),
+      onPressed: () {
+        close(context, null);
+      },
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    final results = internships.where((internship) {
+      return internship['title'].toLowerCase().contains(query.toLowerCase()) ||
+          internship['location'].toLowerCase().contains(query.toLowerCase()) ||
+          internship['category'].toLowerCase().contains(query.toLowerCase());
+    }).toList();
+
+    return ListView.builder(
+      itemCount: results.length,
+      itemBuilder: (context, index) {
+        return ListTile(
+          title: Text(results[index]['title']),
+          subtitle: Text(results[index]['location']),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => VacancyDetails(
+                  vacancyId: results[index]['id'],
+                  category: results[index]['category'],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    final suggestions = internships.where((internship) {
+      return internship['title'].toLowerCase().contains(query.toLowerCase()) ||
+          internship['location'].toLowerCase().contains(query.toLowerCase()) ||
+          internship['category'].toLowerCase().contains(query.toLowerCase());
+    }).toList();
+
+    return ListView.builder(
+      itemCount: suggestions.length,
+      itemBuilder: (context, index) {
+        return ListTile(
+          title: Text(suggestions[index]['title']),
+          subtitle: Text(suggestions[index]['location']),
+          onTap: () {
+            query = suggestions[index]['title'];
+            showResults(context);
+          },
+        );
+      },
     );
   }
 }
